@@ -66,7 +66,7 @@ function PhraseArtwork({ phrase, index }) {
     <svg
       className="sky-phrase-artwork"
       width={width}
-      height="32"
+      height="1.6em"
       aria-hidden="true"
       focusable="false"
     >
@@ -82,9 +82,9 @@ function PhraseArtwork({ phrase, index }) {
           x="0"
           y="0"
           width={width}
-          height="32"
+          height="1.6em"
         >
-          <text ref={text} x="0" y="16" dominantBaseline="central" fill="white">
+          <text ref={text} x="0" y="1.2em" fill="white">
             {phrase}
           </text>
           <g
@@ -97,7 +97,7 @@ function PhraseArtwork({ phrase, index }) {
       </defs>
       <rect
         width={width}
-        height="32"
+        height="1.6em"
         fill={`url(#${id}-paint)`}
         mask={`url(#${id}-shape)`}
       />

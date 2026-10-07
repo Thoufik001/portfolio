@@ -25,4 +25,4 @@ The ZyephrOS visuals are abstracted with synthetic content. No measured outcomes
 
 GitHub: https://github.com/Thoufik001/portfolio
 
-Production target: https://thoufik.vercel.app. Vercel builds with `npm run build` and serves `dist`; Sky is the root homepage. Local development commands do not publish changes.
+Production: https://thoufik-abdullah.vercel.app. Vercel project: `thoufik`. The original requested address `thoufik.vercel.app` is already claimed. Vercel builds with `npm run build` and serves `dist`; Sky is the root homepage. Local development commands do not publish changes.

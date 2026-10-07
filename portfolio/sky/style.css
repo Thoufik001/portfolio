@@ -193,7 +193,7 @@
 .sky-hero-logo { display: block; margin-bottom: var(--space-5); color: var(--sky-ink); }
 .sky-intro h1 { font-size: clamp(36px, 4.4vw, 44px); font-weight: 500; letter-spacing: -.045em; line-height: 1.15; }
 .sky-positioning { margin-top: 8px; font-size: 20px; line-height: 1.5; color: var(--sky-ink); }
-.sky-changing-phrase { min-width: 18ch; vertical-align: middle; padding: 0; background: transparent; display: inline-grid; text-align: left; color: inherit; }
+.sky-changing-phrase { min-width: 18ch; vertical-align: -0.4em; padding: 0; background: transparent; display: inline-grid; text-align: left; color: inherit; }
 .sky-changing-phrase > span { grid-area: 1 / 1; display: inline-flex; align-items: center; }
 .sky-phrase-artwork {
   display: block;
