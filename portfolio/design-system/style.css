@@ -1,0 +1,60 @@
+.foundation {
+  max-width: var(--width-article);
+  padding: var(--space-6) var(--gutter-page) var(--space-section);
+  margin: auto;
+}
+.foundation header {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--type-label);
+  margin-bottom: var(--space-8);
+}
+.foundation > p {
+  margin-top: var(--space-5);
+  color: var(--color-text-secondary);
+}
+.foundation section {
+  margin-top: var(--space-8);
+}
+.foundation h2 {
+  font-size: var(--type-title);
+  margin-bottom: var(--space-6);
+}
+.foundation-types {
+  display: grid;
+  gap: var(--space-6);
+}
+.foundation-types > div {
+  display: grid;
+  gap: var(--space-2);
+}
+.foundation-prose {
+  max-width: var(--measure-prose);
+}
+.foundation-colors {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: var(--space-4);
+}
+.swatch {
+  height: 64px;
+  border-radius: var(--radius-control);
+  outline: 1px solid var(--color-outline);
+  margin-bottom: var(--space-2);
+}
+.foundation-index {
+  display: grid;
+  gap: var(--space-2);
+  font-size: var(--type-label);
+  line-height: var(--leading-label);
+  color: var(--color-text-secondary);
+}
+.foundation-index a[aria-current] {
+  color: var(--color-text);
+}
+
+.foundation header a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}

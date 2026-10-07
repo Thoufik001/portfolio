@@ -1,0 +1,61 @@
+@font-face { font-family: 'Kalam'; src: url('/sky/kalam-regular.ttf') format('truetype'); font-weight: 400; font-style: normal; font-display: swap; }
+.sky-paper-contact {
+  --paper-ink: color-mix(in srgb, #183767, #081936 var(--paper-night-mix, 0%));
+  --paper-pencil: rgb(0 0 0 / .7);
+  --paper-heading: color-mix(in srgb, #343c55, #081421 var(--paper-night-mix, 0%));
+  --paper-error: color-mix(in srgb, #8c2736, #57111d var(--paper-night-mix, 0%));
+  position: relative; width: 100%; max-width: 380px; perspective: 1000px; justify-self: end; filter: drop-shadow(8px 22px 18px #10233c40); }
+@media (prefers-reduced-motion: no-preference) {
+  .sky-paper-contact[data-phase="writing"] { animation: sky-note-float 7s ease-in-out infinite; }
+  .sky-paper-contact:focus-within, .sky-paper-contact:hover { animation-play-state: paused; }
+}
+@keyframes sky-note-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -6px; } }
+.sky-contact-note {
+  position: relative; padding: 28px 28px 24px; color: #343c55;
+  background: color-mix(in srgb, #f5efdf, #abb3c2 var(--paper-night-mix, 0%)); isolation: isolate;
+  border-radius: 2px 4px 5px 2px;
+  box-shadow: inset 1px 1px 2px #fff9, inset -2px -2px 7px #7d684d24;
+  transform-origin: center; font-family: 'Kalam', 'Bradley Hand', cursive;
+}
+.sky-contact-note::before { content: ""; position: absolute; inset: 0; z-index: -1; opacity: .75; pointer-events: none; border-radius: inherit; background: linear-gradient(rgb(24 44 82 / var(--paper-night-tint, 0)), rgb(24 44 82 / var(--paper-night-tint, 0))), #f5efdf url('/sky/contact-paper-texture.webp') center / cover; filter: brightness(var(--paper-illumination, 1)); transition: filter 220ms ease; }
+.sky-contact-note::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: var(--paper-highlight, 1); background: linear-gradient(112deg, #fff5 0%, transparent 34%, #7761430a 55%, #fff3 57%, transparent 72%); border-radius: inherit; transition: opacity 220ms ease; }
+.sky-note-content { position: relative; z-index: 1; }
+.sky-paper-contact .sky-note-content h3 { font: inherit; font-size: 25px; line-height: 32px; margin: 0 0 20px; color: var(--paper-heading); }
+.sky-note-content fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.sky-note-field { position: relative; margin-top: 16px; padding-bottom: 7px; }
+.sky-note-field::after { content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 5px; background: var(--paper-pencil); mask: url('/sky/handwritten-rule.svg') center / 100% 100% no-repeat; pointer-events: none; }
+.sky-note-content label { display: block; font-size: 16px; line-height: 24px; color: var(--paper-pencil); transition: color 220ms ease; }
+.sky-paper-contact .sky-note-content :is(input, textarea) { appearance: none; -webkit-appearance: none; display: block; width: 100%; min-width: 0; box-shadow: none; padding: 0 4px; margin: 0; background: transparent; border: 0; border-radius: 0; color: var(--paper-ink); caret-color: var(--paper-pencil); font: inherit; font-size: 20px; line-height: 32px; resize: vertical; transition: color 220ms ease; }
+.sky-note-field-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; min-height: 24px; }
+.sky-paper-contact .sky-note-error { color: var(--paper-error); font: inherit; font-size: 16px; line-height: 24px; white-space: nowrap; }
+.sky-note-error:empty { display: none; }
+.sky-note-error-readable { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.sky-note-error-letter { display: inline-block; white-space: pre; }
+@media (prefers-reduced-motion: no-preference) {
+  .sky-note-error-letter { animation: sky-note-error-reveal 240ms ease-out both; animation-delay: calc(var(--letter) * 22ms); }
+}
+@keyframes sky-note-error-reveal { from { opacity: 0; filter: blur(4px); translate: 0 2px; } to { opacity: 1; filter: blur(0); translate: 0 0; } }
+.sky-note-content textarea { min-height: 96px; max-height: 192px; }
+.sky-note-content :is(input, textarea):focus-visible { outline: none; }
+.sky-note-content .sky-note-tape {
+  display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; margin: 28px auto 0; padding: 8px 24px; border-radius: 0;
+  background: linear-gradient(100deg, #d1bd8cb3, #e2cea5e6 40%, #d6c499b3); color: var(--paper-heading); filter: brightness(calc(.9 + var(--paper-highlight, 1) * .1)); font: inherit; font-size: 20px;
+  clip-path: polygon(1% 2%, 98% 0, 97% 15%, 100% 24%, 98% 39%, 100% 56%, 97% 72%, 99% 95%, 0 100%, 2% 80%, 0 67%, 2% 45%, 0 28%);
+  rotate: -3deg; cursor: pointer;
+}
+.sky-note-content .sky-note-tape:focus-visible { clip-path: none; outline: 2px solid var(--paper-ink); outline-offset: 3px; }
+.sky-paper-contact .sky-note-close { position: absolute; z-index: 4; top: 20px; right: 20px; width: 36px; height: 36px; display: grid; place-items: center; color: var(--paper-pencil); border-radius: 50%; }
+.sky-paper-contact .sky-note-close:focus-visible { outline: 2px solid var(--paper-ink); outline-offset: 2px; }
+.sky-contact-flight { position: absolute; width: 140px; top: 40%; left: calc(50% - 70px); pointer-events: none; }
+.sky-contact-flight svg { width: 100%; filter: drop-shadow(0 12px 10px #10233c30); }
+.sky-note-confirmation { position: absolute; inset: 0; display: grid; align-items: center; pointer-events: none; }
+.sky-note-confirmation > div { pointer-events: auto; }
+.sky-note-confirmation > div:focus { outline: none; }
+.sky-paper-contact .sky-note-confirmation h3 { font-size: 24px; font-weight: 500; margin-bottom: 12px; }
+.sky-note-confirmation p { font-size: 16px; line-height: 1.65; color: var(--sky-secondary); }
+.sky-note-confirmation a { text-decoration: underline; text-underline-offset: 3px; }
+.sky-note-confirmation button { min-height: 44px; margin-top: 20px; padding: 8px 20px; border-radius: 999px; background: var(--sky-nav-glass); backdrop-filter: var(--sky-glass-filter); }
+.sky-note-progress { font-size: 14px; }
+@media (max-width: 900px) { .sky-paper-contact { justify-self: center; } }
+@media (prefers-reduced-motion: reduce) { .sky-contact-note { transform: none !important; } .sky-contact-note::before, .sky-contact-note::after, .sky-note-content input, .sky-note-content textarea, .sky-note-content label { transition: none; } }
+@media (forced-colors: active) { .sky-note-content :is(input,textarea):focus-visible { outline: 2px solid Highlight; } }

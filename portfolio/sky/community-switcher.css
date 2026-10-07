@@ -1,0 +1,40 @@
+/* One quiet rail, one sliding selection, three equal navigation targets. */
+.sky-community-nav {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: min(336px, 100%);
+  padding: 4px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / .16);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px rgb(22 35 50 / .05);
+}
+.sky-app[data-dark="true"] .sky-community-nav { background: rgb(255 255 255 / .07); }
+.sky-community-selection {
+  position: absolute; top: 4px; left: 4px; bottom: 4px;
+  width: calc((100% - 8px) / 3);
+  border-radius: 999px; background: rgb(255 255 255 / .48);
+  box-shadow: 0 2px 6px rgb(22 35 50 / .04);
+  pointer-events: none; z-index: -1;
+}
+.sky-app[data-dark="true"] .sky-community-selection { background: rgb(255 255 255 / .14); }
+.sky-community-option {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  min-height: 40px; padding: 0 10px; border-radius: 999px;
+  background: transparent; color: var(--sky-secondary); font-size: 14px;
+  transition: color 150ms ease-out;
+}
+.sky-community-option[aria-selected="true"] { color: var(--sky-ink); }
+@media (hover: hover) {
+  .sky-community-option:not([aria-selected="true"]):hover { color: var(--sky-ink); background: transparent; }
+}
+.sky-community-option:focus-visible { outline: 2px solid var(--sky-ink); outline-offset: -2px; }
+@media (prefers-reduced-motion: reduce) { .sky-community-option { transition: none; } }
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .sky-community-nav { background: var(--sky-glass-fallback); backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .sky-community-selection { background: color-mix(in srgb, var(--sky-ink) 15%, var(--sky-glass-fallback)); }
+}
+@supports not (backdrop-filter: blur(1px)) { .sky-community-nav { background: var(--sky-glass-fallback); } }

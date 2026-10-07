@@ -1,0 +1,5 @@
+.sky-progressive-blur { position: fixed; z-index: 8; inset-inline: 0; bottom: 0; height: 112px; pointer-events: none; }
+.sky-progressive-blur > span { position: absolute; inset: 0; opacity: var(--edge-blur-opacity, 0); backdrop-filter: blur(var(--edge-blur-radius)); -webkit-backdrop-filter: blur(var(--edge-blur-radius)); mask-image: linear-gradient(to bottom, transparent var(--edge-blur-start), black var(--edge-blur-end)); -webkit-mask-image: linear-gradient(to bottom, transparent var(--edge-blur-start), black var(--edge-blur-end)); }
+@media (max-width: 700px) { .sky-progressive-blur { height: 80px; } }
+@media (prefers-reduced-motion: reduce), (prefers-reduced-transparency: reduce), (prefers-contrast: more) { .sky-progressive-blur { display: none; } }
+@supports not (backdrop-filter: blur(1px)) { .sky-progressive-blur { display: none; } }

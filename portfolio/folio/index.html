@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#fcfcfa" />
+    <meta
+      name="description"
+      content="Thoufik Abdullah is an AI-native product designer, working across complex software and everyday tools. Designing directly in code."
+    />
+    <title>Thoufik — Product designer, working in code</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script>
+      try {
+        document.documentElement.dataset.theme =
+          localStorage.getItem("thoufik-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light");
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/folio/main.jsx"></script>
+  </body>
+</html>

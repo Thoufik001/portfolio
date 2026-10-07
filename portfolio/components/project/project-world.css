@@ -1,0 +1,103 @@
+.project-world[data-world] {
+  background-image: var(--project-world-image);
+  background-size: cover;
+  background-position: center;
+  isolation: isolate;
+  border-radius: var(--radius-surface);
+}
+.project-world.gallery-preview {
+  height: 420px;
+  padding: 48px;
+}
+.project-world .cover-screen {
+  display: block;
+  width: 100%;
+  border-radius: var(--radius-control);
+  overflow: hidden;
+  box-shadow: 0 12px 28px #00000026;
+}
+.project-world.gallery-image img {
+  max-height: none;
+  outline: none;
+  border-radius: 0;
+}
+.project-world[data-world="learning"] .cover-screen img {
+  transform: scale(1.2);
+}
+.project-world.gallery-clinical .clinical-app {
+  box-shadow: 0 12px 28px #00000018;
+}
+.project-world.gallery-clinical .preview-caption {
+  background: #ffffffed;
+  color: #404040;
+  border-radius: 4px;
+  width: fit-content;
+  margin: 12px auto 0;
+  padding: 4px 8px;
+}
+.project-world.gallery-notch .notch-demo {
+  min-height: 270px;
+  box-shadow: 0 12px 28px #00000026;
+}
+.project-world--case {
+  margin-top: var(--space-7);
+  padding: var(--space-7);
+}
+.project-world--case .scope-figure {
+  margin: 0;
+  background: #fffffff5;
+  color: #242424;
+  --muted: #626262;
+  --surface: #f8f8f8;
+  --page: #ffffff;
+  --accent: #3157c8;
+}
+.project-world--case .project-figure {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+.project-world--case .project-figure > img {
+  border-radius: var(--radius-control);
+  box-shadow: 0 12px 28px #00000026;
+}
+.project-world--case figcaption {
+  background: #fffffff0;
+  color: #404040;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+@media (max-width: 1000px) {
+  .project-world.gallery-preview {
+    height: 360px;
+    padding: 32px;
+  }
+  .project-world.gallery-clinical {
+    padding: 24px;
+  }
+  .project-world.gallery-notch .notch-demo {
+    min-height: 250px;
+  }
+}
+@media (max-width: 700px) {
+  .project-world.gallery-preview {
+    height: 360px;
+    padding: 32px;
+  }
+  .project-world.gallery-clinical {
+    height: 420px;
+    padding: 24px;
+  }
+  .project-world--case {
+    padding: 20px;
+  }
+}
+@media (max-width: 380px) {
+  .project-world.gallery-clinical {
+    padding: 16px;
+  }
+  .project-world.gallery-preview:not(.gallery-clinical) {
+    padding: 24px;
+    height: 320px;
+  }
+}
