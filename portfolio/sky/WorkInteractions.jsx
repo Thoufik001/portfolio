@@ -32,76 +32,13 @@ function GeminiMark() {
   );
 }
 
-// Text and icon form one mask over one gradient, so the color never restarts.
+// Native text shares the sentence baseline; the icon keeps its end-of-gradient ink.
 function PhraseArtwork({ phrase, index }) {
-  const id = useId();
-  const text = useRef(null);
-  const [textWidth, setTextWidth] = useState(phrase.length * 10);
-  const iconSize = 20;
-  const width = textWidth + 7 + iconSize;
-  useEffect(() => {
-    let alive = true;
-    const measure = () => {
-      if (!alive || !text.current) return;
-      let length = text.current.getComputedTextLength();
-      if (!length) {
-        const font = getComputedStyle(text.current);
-        const context = document.createElement("canvas").getContext("2d");
-        if (context) {
-          context.font = `${font.fontWeight} ${font.fontSize} ${font.fontFamily}`;
-          length = context.measureText(phrase).width;
-        }
-      }
-      if (length) setTextWidth(Math.ceil(length));
-    };
-    measure();
-    document.fonts.ready.then(measure);
-    window.addEventListener("resize", measure);
-    return () => {
-      alive = false;
-      window.removeEventListener("resize", measure);
-    };
-  }, [phrase]);
   return (
-    <svg
-      className="sky-phrase-artwork"
-      width={width}
-      height="1.6em"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <defs>
-        <linearGradient id={`${id}-paint`} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="var(--sky-phrase-from)" />
-          <stop offset=".52" stopColor="var(--sky-phrase-middle)" />
-          <stop offset="1" stopColor="var(--sky-phrase-to)" />
-        </linearGradient>
-        <mask
-          id={`${id}-shape`}
-          maskUnits="userSpaceOnUse"
-          x="0"
-          y="0"
-          width={width}
-          height="1.6em"
-        >
-          <text ref={text} x="0" y="1.2em" fill="white">
-            {phrase}
-          </text>
-          <g
-            transform={`translate(${textWidth + 7}, ${(32 - iconSize) / 2})`}
-            style={{ color: "white" }}
-          >
-            <PositioningIcon index={index} />
-          </g>
-        </mask>
-      </defs>
-      <rect
-        width={width}
-        height="1.6em"
-        fill={`url(#${id}-paint)`}
-        mask={`url(#${id}-shape)`}
-      />
-    </svg>
+    <span className="sky-phrase-artwork" aria-hidden="true">
+      {phrase}
+      <PositioningIcon index={index} />
+    </span>
   );
 }
 

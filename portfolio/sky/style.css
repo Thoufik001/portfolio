@@ -193,17 +193,29 @@
 .sky-hero-logo { display: block; margin-bottom: var(--space-5); color: var(--sky-ink); }
 .sky-intro h1 { font-size: clamp(36px, 4.4vw, 44px); font-weight: 500; letter-spacing: -.045em; line-height: 1.15; }
 .sky-positioning { margin-top: 8px; font-size: 20px; line-height: 1.5; color: var(--sky-ink); }
-.sky-changing-phrase { min-width: 18ch; vertical-align: -0.4em; padding: 0; background: transparent; display: inline-grid; text-align: left; color: inherit; }
-.sky-changing-phrase > span { grid-area: 1 / 1; display: inline-flex; align-items: center; }
+.sky-changing-phrase { min-width: 18ch; vertical-align: baseline; padding: 0; background: transparent; display: inline-grid; text-align: left; color: inherit; }
+.sky-changing-phrase > span { grid-area: 1 / 1; display: block; }
 .sky-phrase-artwork {
-  display: block;
-  overflow: visible;
+  display: inline-block;
+  white-space: nowrap;
   --sky-phrase-from: var(--sky-ink);
   --sky-phrase-middle: var(--sky-ink);
   --sky-phrase-to: var(--sky-ink);
   transition: --sky-phrase-from 150ms ease-out, --sky-phrase-middle 150ms ease-out, --sky-phrase-to 150ms ease-out;
 }
-.sky-phrase-artwork text { font-family: var(--font-sans); font-size: inherit; font-weight: 400; letter-spacing: normal; }
+.sky-phrase-artwork > svg { display: inline-block; margin-inline-start: 7px; vertical-align: -0.15em; color: var(--sky-phrase-to); }
+@supports (background-clip: text) {
+  .sky-phrase-artwork {
+    background-image: linear-gradient(to right, var(--sky-phrase-from), var(--sky-phrase-middle) 52%, var(--sky-phrase-to));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+@media (forced-colors: active) {
+  .sky-phrase-artwork { background-image: none; -webkit-text-fill-color: currentColor; }
+  .sky-phrase-artwork > svg { color: inherit; }
+}
 .sky-app[data-dark="true"] .sky-phrase-artwork { --sky-phrase-from: #c6a3f2; --sky-phrase-middle: #f3deef; --sky-phrase-to: #f2b6dd; }
 @media (prefers-reduced-motion: reduce) { .sky-phrase-artwork { transition: none; } }
 .sky-inline-note {
