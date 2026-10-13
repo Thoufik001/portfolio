@@ -1,0 +1,9 @@
+rain-ambience.mp3
+Source: Rain.ogg by ジダネ, public domain.
+https://commons.wikimedia.org/wiki/File:Rain.ogg
+Edited to a steady 8.1-second segment and encoded as MP3 for browser playback.
+
+thunder-rumble.mp3
+Source: Tonitrus.ogg by Mysid, public domain.
+https://commons.wikimedia.org/wiki/File:Tonitrus.ogg
+Edited to a 9-second rumble, faded at the end, and encoded as MP3 for browser playback.

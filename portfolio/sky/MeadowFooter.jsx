@@ -1,16 +1,67 @@
 import { withSkyInk } from "./sky-ink";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import SocialMark from "./SocialMark";
-import LiquidSocials from "./LiquidSocials";
-import { ArrowUpRight } from "./SkyIcons";
+import { Liquid } from "liquid-gooey";
+import { Plus, PenLine } from "./SkyIcons";
 import "./meadow-footer.css";
 import PaperContact from "./PaperContact";
 
-export default function MeadowFooter({ settings }) {
+// Paint glass after the opaque goo mask, so translucent fills don't weaken
+// the liquid connection. The edge and shadow follow the merged silhouette.
+const liquidGlassFilter = `
+  <feGaussianBlur in="SourceAlpha" stdDeviation="5" result="blur" />
+  <feColorMatrix in="blur" type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 18 -7" result="shape" />
+  <feFlood style="flood-color:var(--sky-weather-glass)" result="tint" />
+  <feComposite in="tint" in2="shape" operator="in" result="glass" />
+  <feMorphology in="shape" operator="erode" radius="0.65" result="inside" />
+  <feComposite in="shape" in2="inside" operator="out" result="edge" />
+  <feFlood flood-color="white" flood-opacity="0.16" result="edgeTint" />
+  <feComposite in="edgeTint" in2="edge" operator="in" result="border" />
+  <feOffset in="shape" dy="1" result="lower" />
+  <feComposite in="shape" in2="lower" operator="out" result="top" />
+  <feFlood flood-color="white" flood-opacity="0.22" result="light" />
+  <feComposite in="light" in2="top" operator="in" result="highlight" />
+  <feMerge><feMergeNode in="glass" /><feMergeNode in="border" /><feMergeNode in="highlight" /></feMerge>`;
+
+export default function MeadowFooter({ settings, onActivity }) {
+  const [hoveredButton, setHoveredButton] = useState(null);
+  const [pressedButton, setPressedButton] = useState(null);
   const [socialOpen, setSocialOpen] = useState(false);
+  const returningFocus = useRef(false);
+  const closeContact = useCallback(() => {
+    setContactOpen(false);
+    setSocialOpen(false);
+    returningFocus.current = true;
+    document.querySelector(".meadow-contact")?.focus({ preventScroll: true });
+    returningFocus.current = false;
+  }, []);
+  const [messageSent, setMessageSent] = useState(false);
+  const sent = useCallback(() => {
+    setMessageFields({ name: "", email: "", message: "" });
+    setContactOpen(false);
+    setSocialOpen(false);
+  }, []);
   const [contactOpen, setContactOpen] = useState(false);
+  const paperRevealRef = useRef(null);
   const reduced = useReducedMotion();
+  const buttonScale = (id) => reduced ? 1 : pressedButton === id ? 0.96 : hoveredButton === id ? 1.025 : 1;
+  const buttonGestures = (id) => ({
+    onPointerEnter: (event) => event.pointerType === "mouse" && setHoveredButton(id),
+    onPointerLeave: () => { setHoveredButton(null); setPressedButton(null); },
+    onPointerDown: () => setPressedButton(id),
+    onPointerUp: () => setPressedButton(null),
+    onPointerCancel: () => setPressedButton(null),
+  });
+  const [mobile, setMobile] = useState(
+    () => window.matchMedia("(max-width: 560px)").matches,
+  );
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 560px)");
+    const update = () => setMobile(query.matches);
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
   const [socialReady, setSocialReady] = useState(false);
   useEffect(() => {
     setSocialReady(false);
@@ -19,7 +70,6 @@ export default function MeadowFooter({ settings }) {
       setSocialReady(true);
       return;
     }
-    // Logo starts as the droplet settles; the last blur resolves at 580ms.
     const timer = setTimeout(() => setSocialReady(true), 580);
     return () => clearTimeout(timer);
   }, [socialOpen, reduced]);
@@ -44,17 +94,33 @@ export default function MeadowFooter({ settings }) {
   };
   return withSkyInk(
     <footer className="meadow-footer" id="footer" style={landscapeStyle}>
-      <div className="meadow-contact-layout" data-contact-open={contactOpen}>
-        <div className="meadow-closing">
-          <h2>Thanks for wandering by.</h2>
+      <div
+        className="meadow-contact-layout"
+        data-contact-open={contactOpen && !messageSent}
+      >
+        <div className="meadow-closing" data-message-sent={messageSent}>
+          <h2 aria-live="polite" tabIndex={-1}>
+            <span className="meadow-copy-before" aria-hidden={messageSent}>
+              Thanks for wandering by!
+            </span>
+            <span className="meadow-copy-after" aria-hidden={!messageSent}>
+              I’ll write back soon!
+            </span>
+          </h2>
           <p>
-            Have a curious idea, a complicated problem, or just something to
-            say? I’d love to hear it.
+            <span className="meadow-copy-before" aria-hidden={messageSent}>
+              Have a curious idea, a complicated problem, or just something to
+              say? I’d love to hear it.
+            </span>
+            <span className="meadow-copy-after" aria-hidden={!messageSent}>
+              Thanks for your note. I’m looking forward to our conversation.
+            </span>
           </p>
           <div
             className="meadow-connect"
-            data-open={socialOpen}
-            data-ready={socialOpen && socialReady}
+            style={{ "--contact-width": messageSent ? "200px" : "160px" }}
+            data-open={socialOpen || mobile}
+            data-ready={mobile || (socialOpen && socialReady)}
             onMouseEnter={() => setSocialOpen(true)}
             onMouseLeave={(event) => {
               if (!event.currentTarget.contains(document.activeElement))
@@ -74,25 +140,53 @@ export default function MeadowFooter({ settings }) {
               }
             }}
           >
-            <LiquidSocials open={socialOpen} />
+            <Liquid className="meadow-liquid-group" blur={5} contrast={18}
+              fill="white" filterPadding={40} filter={liquidGlassFilter}
+              shadow="0 8px 24px rgba(22,35,50,.08)">
+            <Liquid.Item scale={buttonScale("contact")} transition={{ duration: reduced ? 0 : 150, ease: "ease-out" }}>
             <button
+              {...buttonGestures("contact")}
               className="meadow-contact"
+              data-label-expanded={mobile || socialOpen || messageSent}
+              aria-label={messageSent ? "Write another note" : mobile || socialOpen ? "Write a note" : "Let’s connect"}
               aria-expanded={contactOpen}
               aria-controls="sky-contact-panel"
-              onFocus={() => setSocialOpen(true)}
+              onFocus={() => {
+                if (!returningFocus.current) setSocialOpen(true);
+              }}
               onClick={() => {
-                setContactOpen(!contactOpen);
-                setSocialOpen(true);
+                if (contactOpen) closeContact();
+                else {
+                  onActivity?.("form_open", "contact");
+                  setMessageSent(false);
+                  setContactOpen(true);
+                  setSocialOpen(true);
+                }
               }}
             >
-              Connect with me <ArrowUpRight size={18} />
+              <span className="meadow-contact-label" aria-hidden="true">
+                <span className="meadow-label-connect">Let’s connect</span>
+                <span className="meadow-label-note">{messageSent ? "Write another note" : "Write a note"}</span>
+              </span>
+              <span className="meadow-contact-icons" aria-hidden="true">
+                {[false, true].map(note => (
+                  <motion.span key={String(note)} initial={false}
+                    animate={(mobile || socialOpen || messageSent) === note
+                      ? { opacity: 1, scale: 1, filter: "blur(0px)" }
+                      : { opacity: 0, scale: .25, filter: "blur(4px)" }}
+                    transition={{ type: "spring", duration: reduced ? 0 : .3, bounce: 0 }}>
+                    {note ? <PenLine size={18} /> : <Plus size={18} />}
+                  </motion.span>
+                ))}
+              </span>
             </button>
+            </Liquid.Item>
             <nav
               id="meadow-social-links"
               className="meadow-socials"
               aria-label="Social links"
-              aria-hidden={!socialOpen || !socialReady}
-              inert={!socialOpen || !socialReady}
+              aria-hidden={!mobile && (!socialOpen || !socialReady)}
+              inert={!mobile && (!socialOpen || !socialReady)}
             >
               {[
                 [
@@ -107,8 +201,12 @@ export default function MeadowFooter({ settings }) {
                   "instagram",
                 ],
               ].map(([name, url, brand], i) => (
+                <Liquid.Item key={brand}
+                  scale={buttonScale(brand)}
+                  x={socialOpen || mobile ? 0 : -82 - i * 58}
+                  transition={{ duration: reduced ? 0 : 500, ease: "cubic-bezier(0.2, 0.8, 0.2, 1)" }}>
                 <a
-                  key={brand}
+                  {...buttonGestures(brand)}
                   href={url}
                   target="_blank"
                   rel="noreferrer"
@@ -119,31 +217,70 @@ export default function MeadowFooter({ settings }) {
                 >
                   <SocialMark brand={brand} />
                 </a>
+                </Liquid.Item>
               ))}
             </nav>
+            </Liquid>
           </div>
         </div>
         <AnimatePresence>
           {contactOpen && (
             <motion.div
+              ref={paperRevealRef}
               className="meadow-paper-reveal"
               id="sky-contact-panel"
-              initial={{
-                opacity: 0,
-                y: 28,
-                scale: 0.88,
-                filter: reduced ? "none" : "blur(18px)",
-              }}
-              animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-              exit={{
-                opacity: 0,
-                y: -12,
-                scale: 0.94,
-                filter: reduced ? "none" : "blur(12px)",
-              }}
-              transition={{
-                duration: reduced ? 0 : 0.6,
-                ease: [0.2, 0.7, 0.2, 1],
+              initial={
+                mobile && !reduced
+                  ? {
+                      height: 0,
+                      marginTop: 0,
+                      opacity: 0,
+                      overflow: "hidden",
+                    }
+                  : {
+                      opacity: 0,
+                      y: 18,
+                      scale: 0.94,
+                      filter: reduced ? "none" : "blur(4px)",
+                    }
+              }
+              animate={
+                mobile && !reduced
+                  ? {
+                      height: "auto",
+                      marginTop: 48,
+                      opacity: 1,
+                      overflow: "hidden",
+                    }
+                  : { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }
+              }
+              exit={
+                mobile && !reduced
+                  ? {
+                      opacity: 0,
+                      height: 0,
+                      marginTop: 0,
+                      overflow: "hidden",
+                      transition: { duration: 0.38, ease: [0.2, 0, 0, 1] },
+                    }
+                  : { opacity: 0, transition: { duration: 0 } }
+              }
+              transition={
+                mobile && !reduced
+                  ? {
+                      height: { duration: 0.42, ease: [0.2, 0, 0, 1] },
+                      marginTop: { duration: 0.42, ease: [0.2, 0, 0, 1] },
+                      opacity: { duration: 0.22, delay: 0.18 },
+                    }
+                  : {
+                      duration: reduced ? 0 : 0.38,
+                      delay: reduced ? 0 : 0.1,
+                      ease: [0.2, 0.7, 0.2, 1],
+                    }
+              }
+              onAnimationComplete={() => {
+                if (mobile && contactOpen && paperRevealRef.current)
+                  paperRevealRef.current.style.overflow = "visible";
               }}
             >
               {!reduced && (
@@ -156,12 +293,13 @@ export default function MeadowFooter({ settings }) {
               <PaperContact
                 fields={messageFields}
                 setFields={setMessageFields}
-                onClose={() => {
-                  setContactOpen(false);
-                  document
-                    .querySelector(".meadow-contact")
-                    ?.focus({ preventScroll: true });
+                onClose={closeContact}
+                onSent={sent}
+                onLaunched={() => {
+                  setMessageSent(true);
+                  document.querySelector(".meadow-closing h2")?.focus({ preventScroll: true });
                 }}
+                onFailure={() => setMessageSent(false)}
               />
             </motion.div>
           )}
@@ -169,7 +307,7 @@ export default function MeadowFooter({ settings }) {
       </div>
       <div className="meadow-garden" aria-hidden="true">
         <img
-          src="/sky/meadow-photographic-v2.webp"
+          src="/sky/meadow-photographic-v2-optimized.webp"
           alt=""
           width="2172"
           height="724"
@@ -178,12 +316,22 @@ export default function MeadowFooter({ settings }) {
         />
       </div>
       <div className="meadow-credit">
-        © {new Date().getFullYear()} Thoufik Abdullah
+        <div className="meadow-credit-left">
+          <span>© {new Date().getFullYear()} Thoufik Abdullah</span>
+          <details className="meadow-analytics">
+            <summary>Privacy &amp; analytics</summary>
+            <p>
+              Anonymous visits and time spent help improve this portfolio.
+              No personal tracking.
+            </p>
+          </details>
+        </div>
         <span className="meadow-weather-credit">
           Weather data by{" "}
           <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">
             Open-Meteo
           </a>
+          {" · "}<a href="https://aviationweather.gov/" target="_blank" rel="noreferrer" title="Nearby airport cloud observations">AWC</a>
         </span>
       </div>
     </footer>,

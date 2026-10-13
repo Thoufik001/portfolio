@@ -1,28 +1,33 @@
-# Thoufik portfolio
+# Thoufik portfolio — current approved version
 
-React/Vite portfolio with a shared Geist design system.
+This repository contains the current portfolio served locally at http://127.0.0.1:4173/.
+There is one portfolio implementation. `/sky/` is an alias of the same version, retained for existing navigation links. Earlier `/folio/`, `/studio/`, `/previous/`, and standalone case-study experiments are not included.
 
-## Develop
+## Run
 
 ```sh
-npm install
+npm ci
 npm run dev
 npm run build
 ```
 
-## Routes
+## Case-study handoff
 
-- `/`: Sky portfolio
-- `/sky/`: Sky portfolio alias
-- `/folio/`: preserved earlier portfolio
-- `/case-studies/?project=zyephr|sap|learning`: case studies
-- `/design-system/`: live typography, colors and reading reference
-- `/previous/`, `/studio/`: preserved earlier experiments
+Read `CLAUDE.md`, `AGENTS.md`, and `DESIGN_SYSTEM.md` before editing.
 
-Read `DESIGN_SYSTEM.md` for the foundation and `AGENTS.md` for build conventions. Shared CSS lives in `portfolio/styles`, reusable navigation in `portfolio/components`, reusable behavior in `portfolio/hooks`. Project skills are installed in `.agents/skills`.
+- `portfolio/sky/main.jsx`: homepage and the current `CaseStudy` renderer.
+- `portfolio/case-studies/content.js`: ZyephrOS, Airtribe and Aceteroid case content.
+- `portfolio/sky/stories/`: independent project stories and their current renderer.
+- `portfolio/sky/style.css`, `case-index.css`, `work-projects.css`: current route styles.
+- `portfolio/public/`: project visuals, brand marks, audio and attribution files.
+- `portfolio/styles/`: shared foundations.
 
-The ZyephrOS visuals are abstracted with synthetic content. No measured outcomes are invented. Current drafts require confirmation of historical project details before publication.
+Open current case studies using `/?project=zyephr`, `/?project=learning`, `/?project=sap`, `/?project=tesseract`, `/?project=diary`, or `/?project=courage`.
 
-GitHub: https://github.com/Thoufik001/portfolio
+The approved hero, sky palette, cloud movement, navigation and audio should stay unchanged during case-study design work unless explicitly requested. The sunset orange is the approved softened blend. Do not reintroduce the rejected cloud-gap sunray experiment or liquid-glass navigation.
 
-Production: https://thoufik-abdullah.vercel.app. Vercel project: `thoufik`. The original requested address `thoufik.vercel.app` is already claimed. Vercel builds with `npm run build` and serves `dist`; Sky is the root homepage. Local development commands do not publish changes.
+## Configuration
+
+Environment files and credentials are intentionally excluded. The current frontend works without local secrets; optional contact/activity services require the existing deployment environment. `api/clouds.js` supplies optional nearby cloud observations. `neon/`, `neon.ts` and `scripts/` contain current service source, not another portfolio version. `portfolio/activity/` is an owner maintenance tool and is not a build entry.
+
+Build output, dependencies, working notes and local backups are not committed.

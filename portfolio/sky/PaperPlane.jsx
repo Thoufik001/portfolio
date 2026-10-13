@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useId } from "react";
 
-export function PaperPlane({ className = "", ...props }) {
+export function PaperPlane({ className = "", texture, ...props }) {
+  const patternId = useId();
   return (
     <svg
       className={className}
@@ -9,10 +10,11 @@ export function PaperPlane({ className = "", ...props }) {
       focusable="false"
       {...props}
     >
-      <path d="M8 44 151 9 66 91 57 58Z" fill="#e9edf5" />
-      <path d="M8 44 151 9 57 58Z" fill="#fffdf8" />
-      <path d="M57 58 151 9 66 91Z" fill="#d6ddeb" />
-      <path d="M57 58 151 9 82 61 66 91Z" fill="#f5f3ff" />
+      {texture && <defs><pattern id={patternId} width="160" height="100" patternUnits="userSpaceOnUse"><image href={texture} width="160" height="100" preserveAspectRatio="xMidYMid slice" /></pattern></defs>}
+      <path d="M8 44 151 9 66 91 57 58Z" fill={texture ? `url(#${patternId})` : "#e9edf5"} />
+      <path d="M8 44 151 9 57 58Z" fill={texture ? "#fff9" : "#fffdf8"} />
+      <path d="M57 58 151 9 66 91Z" fill={texture ? "#34435b36" : "#d6ddeb"} />
+      <path d="M57 58 151 9 82 61 66 91Z" fill={texture ? "#fff8" : "#f5f3ff"} />
       <path
         d="m57 58 9 33M57 58 151 9"
         fill="none"
@@ -22,4 +24,3 @@ export function PaperPlane({ className = "", ...props }) {
     </svg>
   );
 }
-

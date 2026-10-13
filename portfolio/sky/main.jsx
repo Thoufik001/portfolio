@@ -1,8 +1,9 @@
 import { withSkyInk } from "./sky-ink";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { MotionConfig, useReducedMotion } from "motion/react";
-import Logo from "../components/brand/Logo";
+import { AnimatePresence, MotionConfig, motion, useReducedMotion } from "motion/react";
+import MetallicLogo from "./MetallicLogo";
+import GradualBlur from "./GradualBlur";
 import {
   ArrowLeft,
   ArrowRight,
@@ -11,23 +12,25 @@ import {
   Moon,
   Sun,
 } from "./SkyIcons";
-import {
-  PaletteStudy,
-  RevealStudy,
-  TaskStudy,
-  ToolbarStudy,
-} from "../components/playground/Interactions";
+import ArchiveGallery from "./ArchiveGallery";
+import CaseIndex from "./CaseIndex";
 import { studies } from "../case-studies/content";
-import { Positioning, StoryNote, ProjectMark } from "./WorkInteractions";
+import { Positioning, StoryNote, FlowingWords, ProjectMark } from "./WorkInteractions";
 import Sky from "./Sky";
+import AuroraCurtain from "./AuroraCurtain";
 import MeadowFooter from "./MeadowFooter";
-import ProgressiveBlur from "./ProgressiveBlur";
 import SkyNavigation from "./SkyNavigation";
 import WorkProjects from "./WorkProjects";
+import IndependentStory from "./stories/IndependentStory";
+import { IndependentProjects, NotchPlayground } from "./stories/IndependentProjects";
+import { stories } from "./stories/content";
+import "./stories/stories.css";
 import ExperienceSection from "./ExperienceSection";
 import SkyControls from "./WeatherControls";
 import useVisitorLocation from "./useVisitorLocation";
+import { recordActivity, startActivityTracking } from "../hooks/activity";
 import { useWeather, liveAtmosphere, weatherAtHour } from "./weather";
+import { createRainSound } from "./rain-sound";
 import "../styles/base.css";
 import "./style.css";
 const projects = [
@@ -38,6 +41,7 @@ const projects = [
     description:
       "A hospital OS across eight roles, with a design system that lets one designer keep building.",
     category: "Clinical AI / Enterprise software",
+    domain: "Healthcare / Clinical AI",
     role: "Solo product designer",
     year: "2026",
   },
@@ -48,6 +52,7 @@ const projects = [
     description:
       "Helping teams navigate SAP migration through connected views of risk, dependencies and planning.",
     category: "Enterprise AI",
+    domain: "Enterprise AI / SAP",
     role: "Product designer",
     image: "/work/aceteroid.png",
   },
@@ -59,16 +64,16 @@ const projects = [
       "An editing workspace that brings program pages, reusable sections and publishing into one place.",
     category: "Education / Internal tools",
     role: "Product designer",
-    image: "/work/airtribe.png",
+    image: "/work/airtribe-optimized.webp",
   },
   {
     id: "notch",
     name: "NotchPark",
     category: "Window utility · Independent concept",
-    image: "/project-worlds/notchpark-pixel.jpg",
+    image: "/project-worlds/notchpark-pixel-optimized.webp",
   },
 ];
-const workProjects = [projects[0], projects[2], projects[1], projects[3]];
+const workProjects = [projects[0], projects[2], projects[1]];
 workProjects.forEach((project) => {
   project.caseTitle =
     studies[project.id]?.title.replace(/\n/g, " ") ||
@@ -184,7 +189,7 @@ function Preview({ project }) {
         className="sky-notch-preview"
         aria-label="NotchPark concept illustration"
       >
-        <img src={project.image} alt="" loading="lazy" />
+        <img src={project.image} alt="" loading="lazy" decoding="async" />
         <div className="sky-notch-shelf">
           <span>NotchPark</span>
           <small>Parked windows</small>
@@ -203,26 +208,25 @@ function Preview({ project }) {
       className="sky-product-image"
       src={project.image}
       alt={`${project.name} product interface from the visual archive`}
-      loading="lazy"
+      loading={project.id === "learning" ? "eager" : "lazy"}
+      decoding="async"
     />
   ) : (
     <ClinicalPreview />
   );
 }
-function Home({ view, navigate }) {
+function Home({ view, navigate, paused, reduced }) {
   return withSkyInk(
     <div className="sky-work" id="work">
       <section className="sky-intro" aria-labelledby="sky-intro-title">
-        <Logo size={48} className="sky-hero-logo" />
+        <MetallicLogo paused={paused} />
         <h1 id="sky-intro-title">Hi, I’m Thoufik.</h1>
         <Positioning />
         <div className="sky-story">
           <p>
             I design complex products until they feel simple. I use{" "}
-            <StoryNote kind="ai">AI</StoryNote> to prototype
-            <br className="sky-ideas-break" /> ideas quickly, then obsess over
-            the interactions and small details that make the product feel right
-            and a joy to use.
+            <StoryNote kind="ai">AI</StoryNote>{" "}
+            <FlowingWords text="to prototype ideas quickly, then obsess over the interactions and small details that make the product feel right and a joy to use." />
           </p>
           <p>
             Right now at{" "}
@@ -241,8 +245,7 @@ function Home({ view, navigate }) {
                 </span>
               </span>
             </a>
-            , I’m designing for trust in AI where critical decisions shape both
-            patient care and hospital operations.
+            <FlowingWords leading=", " text="I’m designing for trust in AI where critical decisions shape both patient care and hospital operations." />
           </p>
         </div>
         <div className="sky-story-links">
@@ -255,7 +258,17 @@ function Home({ view, navigate }) {
         aria-labelledby={`sky-tab-${view}`}
         tabIndex={0}
       >
-        {view === "work" ? <Work /> : view === "play" ? <Play /> : <About />}
+        <AnimatePresence initial={false} mode="wait">
+          <motion.div
+            key={view}
+            initial={reduced ? false : { opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: -4 }}
+            transition={{ duration: reduced ? 0 : 0.16, ease: "easeOut" }}
+          >
+            {view === "work" ? <Work /> : view === "play" ? <Play /> : <About />}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>,
   );
@@ -266,96 +279,28 @@ function Work() {
       <section
         className="sky-selected-work"
         id="selected-work"
-        aria-labelledby="sky-work-title"
+        aria-label="Selected work"
       >
-        <header className="sky-work-introduction">
-          <h2 id="sky-work-title">A few things I’ve designed.</h2>
-        </header>
         <WorkProjects projects={workProjects} Preview={Preview} />
       </section>
-      <ExperienceSection items={experience} placement="work" />
+      <IndependentProjects />
     </>,
   );
 }
-const experiments = [
-  ["A palette with a memory", "Pin a color. Shuffle the rest.", PaletteStudy],
-  ["A window between moods", "Slide between quiet and vivid.", RevealStudy],
-  ["Room to breathe", "Clear the stack, one thought at a time.", TaskStudy],
-  [
-    "A different lens",
-    "Switch tools. Watch the same idea change.",
-    ToolbarStudy,
-  ],
-];
 function Play() {
   return withSkyInk(
-    <section className="sky-play" id="play" aria-labelledby="sky-play-title">
-      <div className="sky-section-intro">
-        <h1 id="sky-play-title">
-          A little room
-          <br />
-          for curiosity.
-        </h1>
-        <p>
-          Working ideas, small interactions, and things made for the fun of it.
-        </p>
-      </div>
-      <div className="sky-studies">
-        {experiments.map(([title, text, Component]) => (
-          <article key={title}>
-            <div className="sky-study-scene">
-              <Component />
-            </div>
-            <h2>{title}</h2>
-            <p>{text}</p>
-          </article>
-        ))}
-      </div>
-      <p className="sky-study-credit">
-        Interaction studies inspired by{" "}
-        <a href="https://bencho.dev/" target="_blank" rel="noreferrer">
-          Bencho
-        </a>
-        .
-      </p>
-      <div className="sky-archive">
-        <h2>Another kind of storytelling.</h2>
-        <p>Brand identities and presentations from my visual archive.</p>
-        <div>
-          {[
-            ["A2A Point", "identity-1.png"],
-            ["SecuQR", "identity-2.png"],
-          ].map(([name, image]) => (
-            <a
-              key={name}
-              href={`/playground/${image}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <img
-                src={`/playground/${image}`}
-                alt={`${name} brand presentation`}
-              />
-              <span>
-                {name}
-                <ArrowUpRight size={16} />
-              </span>
-            </a>
-          ))}
-        </div>
-      </div>
+    <section className="sky-play sky-tab-section" id="play" aria-label="Playground artwork">
+      <NotchPlayground />
+      <ArchiveGallery />
     </section>,
   );
 }
 function About() {
   return withSkyInk(
-    <section className="sky-about" id="about" aria-labelledby="sky-about-title">
+    <section className="sky-about sky-tab-section" id="about" aria-labelledby="sky-about-title">
       <div className="sky-section-intro">
-        <Logo size={64} />
         <h1 id="sky-about-title">
-          I like the hard problems.
-          <br />
-          And the small details.
+          I like the hard problems. And the small details.
         </h1>
       </div>
       <div className="sky-reading-surface">
@@ -395,7 +340,7 @@ function CaseStudy({ id }) {
     project = projects.find((p) => p.id === id);
   if (id === "notch")
     return withSkyInk(
-      <main className="sky-about" id="sky-content">
+      <main className="sky-about sky-case-concept" id="sky-content">
         <div className="sky-section-intro">
           <p>Independent concept</p>
           <h1>NotchPark</h1>
@@ -413,17 +358,7 @@ function CaseStudy({ id }) {
   if (!study || !project) return <Work />;
   return withSkyInk(
     <main className="sky-case" id="sky-content">
-      <nav className="sky-case-index" aria-label="Case study index">
-        <a href="/sky/">
-          <ArrowLeft size={16} />
-          Index
-        </a>
-        {indexSections.map(([key, label]) => (
-          <a key={key} href={`#${key}`}>
-            {label}
-          </a>
-        ))}
-      </nav>
+      <CaseIndex sections={indexSections} />
       <article className="sky-case-sheet">
         <header id="overview">
           <p>
@@ -530,10 +465,46 @@ function CaseNavigation({ id }) {
   );
 }
 function App() {
+  useEffect(() => startActivityTracking(), []);
   const { region, setRegion, locationStatus, locate } = useVisitorLocation();
   const [preview, setPreview] = useState("live"),
     [previewHour, setPreviewHour] = useState(null),
-    [paused, setPaused] = useState(false);
+    [paused, setPaused] = useState(false),
+    [soundOn, setSoundOn] = useState(true);
+  const [soundVolume, setSoundVolume] = useState(() => {
+    try { const saved = localStorage.getItem("sky-nature-volume-v2"); return saved === null ? .5 : Math.max(.1, Math.min(1, Number(saved) || .5)); }
+    catch { return .5; }
+  });
+  const rainAudio = useRef(null);
+  const [footerBlurLevel, setFooterBlurLevel] = useState(1);
+  useEffect(() => {
+    const paragraph = document.querySelector("#footer .meadow-closing > p");
+    if (!paragraph) return undefined;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const viewport = window.innerHeight;
+      // Fade while the footer message enters the lower viewport, before the
+      // meadow image reaches the bottom blur band.
+      const start = viewport * 1.02;
+      const end = viewport * 0.72;
+      const level = Math.max(0, Math.min(1, (paragraph.getBoundingClientRect().bottom - end) / (start - end)));
+      setFooterBlurLevel((previous) =>
+        level !== 0 && level !== 1 && Math.abs(previous - level) < 0.01
+          ? previous
+          : level,
+      );
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    };
+  }, []);
   const [view, setView] = useState(
     location.hash === "#play"
       ? "play"
@@ -548,8 +519,8 @@ function App() {
     [region, weather?.zone],
   );
   const selectedWeather = useMemo(
-    () => weatherAtHour(weather, previewHour, resolvedRegion),
-    [weather, previewHour, resolvedRegion],
+    () => weatherAtHour(weather, previewHour, resolvedRegion, now),
+    [weather, previewHour, resolvedRegion, now],
   );
   const settings = useMemo(() => {
     const next = liveAtmosphere(
@@ -561,11 +532,12 @@ function App() {
     if (preview === "clear")
       return {
         ...next,
-        cloud: 0.02,
-        lowCloud: 0,
+        cloud: 0.12,
+        lowCloud: 0.12,
         midCloud: 0,
         highCloud: 0.04,
         rain: 0,
+        aurora: Math.abs(resolvedRegion.lat) >= 65 && next.name === "Night",
       };
     if (preview === "cloud")
       return {
@@ -575,6 +547,7 @@ function App() {
         midCloud: 0.6,
         highCloud: 0.3,
         rain: 0,
+        aurora: false,
       };
     if (preview === "rain")
       return {
@@ -584,35 +557,71 @@ function App() {
         midCloud: 0.85,
         highCloud: 0.6,
         rain: 0.7,
+        aurora: false,
       };
     return next;
   }, [now, resolvedRegion, selectedWeather, preview, previewHour]);
+  useEffect(() => {
+    if (!soundOn) {
+      rainAudio.current?.setWeather(settings, false);
+      return;
+    }
+    if (!rainAudio.current) {
+      rainAudio.current = createRainSound();
+      rainAudio.current.start();
+    }
+    const updateVolume = () => rainAudio.current?.setWeather(settings, !paused && !document.hidden);
+    const unlockAudio = () => rainAudio.current?.resume();
+    updateVolume();
+    document.addEventListener("visibilitychange", updateVolume);
+    // Browsers may suspend autoplay until the visitor first interacts.
+    window.addEventListener("pointerdown", unlockAudio, { passive: true });
+    window.addEventListener("keydown", unlockAudio);
+    return () => {
+      document.removeEventListener("visibilitychange", updateVolume);
+      window.removeEventListener("pointerdown", unlockAudio);
+      window.removeEventListener("keydown", unlockAudio);
+    };
+  }, [soundOn, paused, settings]);
+  useEffect(() => {
+    rainAudio.current?.setVolume(soundVolume * 2);
+    try { localStorage.setItem("sky-nature-volume-v2", String(soundVolume)); } catch {}
+  }, [soundVolume, soundOn]);
+  useEffect(() => () => rainAudio.current?.stop(), []);
+  function toggleRainSound() {
+    if (soundOn) {
+      rainAudio.current?.stop();
+      rainAudio.current = null;
+      setSoundOn(false);
+      return;
+    }
+    rainAudio.current = createRainSound();
+    if (rainAudio.current.start()) setSoundOn(true);
+  }
   const project = new URLSearchParams(location.search).get("project");
-  const isDark = settings.light < 0.4;
   function navigate(next) {
     setView(next);
     history.replaceState(null, "", `/sky/#${next}`);
+    window.dispatchEvent(new Event("hashchange"));
   }
+  const initialTheme = useRef({ "--daylight": settings.light < .4 ? 0 : 1, "--theme-blend": settings.light < .4 ? 0 : 1 });
   return withSkyInk(
-    <div className="sky-app" data-dark={isDark}>
-      <Sky settings={settings} paused={paused} reduced={reduced} />
+    <div className="sky-app" style={initialTheme.current}>
+      <Sky settings={settings} paused={paused} reduced={reduced} onLightning={() => {
+        if (soundOn && !paused && !document.hidden) rainAudio.current?.thunder();
+      }} />
+      {settings.aurora && <AuroraCurtain paused={paused || reduced} />}
       <a className="sky-skip" href="#sky-content">
         Skip to content
       </a>
-      {project && (
-        <header className="sky-header">
-          <SkyNavigation view={view} project={project} navigate={navigate} />
-        </header>
-      )}
       {project ? (
-        <CaseStudy id={project} />
+        stories[project] ? <IndependentStory id={project} /> : <CaseStudy id={project} />
       ) : (
         <main id="sky-content">
-          <Home view={view} navigate={navigate} />
+          <Home view={view} navigate={navigate} paused={paused} reduced={reduced} />
         </main>
       )}
-      <MeadowFooter reduced={reduced} paused={paused} settings={settings} />
-      <ProgressiveBlur />
+      <MeadowFooter reduced={reduced} paused={paused} settings={settings} onActivity={recordActivity} />
       <SkyControls
         {...{
           region: resolvedRegion,
@@ -625,13 +634,34 @@ function App() {
           setPreviewHour,
           refresh,
           weather: selectedWeather,
+          skyRain: settings.rain,
+          skyCloud: settings.cloud,
+          skyAurora: settings.aurora,
           status,
           now,
           paused,
           setPaused,
+          soundOn,
+          soundVolume,
+          setSoundVolume,
+          toggleRainSound,
           reduced,
+          onActivity: recordActivity,
         }}
       />
+      {!stories[project] && <GradualBlur
+        target="page"
+        position="bottom"
+        height="var(--sky-bottom-blur-height)"
+        strength={1.15}
+        divCount={7}
+        curve="bezier"
+        exponential
+        opacity={1}
+        layerOpacity={footerBlurLevel}
+        zIndex={18}
+        className="sky-bottom-blur"
+      />}
     </div>,
   );
 }

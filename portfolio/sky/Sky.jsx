@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from "react";
-export default function Sky({ settings, paused, reduced }) {
+export default function Sky({ settings, paused, reduced, onLightning }) {
   const canvas = useRef(null),
     api = useRef(null),
-    latest = useRef({ settings, paused, reduced });
-  latest.current = { settings, paused, reduced };
+    latest = useRef({ settings, paused, reduced, onLightning });
+  latest.current = { settings, paused, reduced, onLightning };
   useEffect(() => {
     let stopped = false,
       scene;
@@ -15,7 +15,8 @@ export default function Sky({ settings, paused, reduced }) {
       element.style.visibility = "hidden";
     };
     element.addEventListener("webglcontextlost", lost);
-    import("./sky-scene").then(({ createSky }) => {
+    // LIQUID GLASS recovery: preserve CSS fallback on loss and rebuild on restoration.
+    const initialize = () => import("./sky-scene").then(({ createSky }) => {
       if (stopped) return;
       try {
         scene = createSky(
@@ -23,17 +24,26 @@ export default function Sky({ settings, paused, reduced }) {
           latest.current.settings,
           latest.current.paused,
           latest.current.reduced,
+          () => latest.current.onLightning?.(),
         );
         api.current = scene;
+        element.style.visibility = "";
       } catch {
         element.style.visibility = "hidden";
       }
     }).catch(() => {
       if (!stopped) element.style.visibility = "hidden";
     });
+    const restored = () => initialize();
+    const allowRestore = event => event.preventDefault();
+    element.addEventListener("webglcontextlost", allowRestore);
+    element.addEventListener("webglcontextrestored", restored);
+    initialize();
     return () => {
       stopped = true;
       element.removeEventListener("webglcontextlost", lost);
+      element.removeEventListener("webglcontextlost", allowRestore);
+      element.removeEventListener("webglcontextrestored", restored);
       scene?.dispose();
       api.current = null;
     };

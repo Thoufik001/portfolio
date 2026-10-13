@@ -1,0 +1,181 @@
+[
+  {
+    "file": "diary-early.jpg",
+    "source": "work/case-study-evidence/diary/screenshots/phase1-writing.png",
+    "treatment": "Resized maximum 1600px JPEG, original contents retained."
+  },
+  {
+    "file": "diary-scene.jpg",
+    "source": "work/case-study-evidence/diary/screenshots/scene-final-writing.png",
+    "treatment": "Resized maximum 1600px JPEG, original contents retained."
+  },
+  {
+    "file": "diary-entry.jpg",
+    "source": "work/case-study-evidence/diary/screenshots/phase4-idle.png",
+    "treatment": "Resized maximum 1600px JPEG, original contents retained."
+  },
+  {
+    "file": "diary-mobile.jpg",
+    "source": "work/case-study-evidence/diary/screenshots/mobile-writing-final.png",
+    "treatment": "Resized maximum 1600px JPEG, original contents retained."
+  },
+  {
+    "file": "diary-shadow.jpg",
+    "source": "/Users/thoufikabdullah/Documents/Screenshots/Screenshot 2026-10-09 at 1.10.01\u202fPM.png",
+    "treatment": "Resized maximum 1600px JPEG, original contents retained."
+  },
+  {
+    "file": "courage-early.jpg",
+    "source": "work/case-study-evidence/courage/01-early-prototype/phase-2-crt.png",
+    "treatment": "Resized maximum 1600px JPEG, original contents retained."
+  },
+  {
+    "file": "courage-room.jpg",
+    "source": "work/case-study-evidence/courage/03-experience/current-room.png",
+    "treatment": "Resized maximum 1600px JPEG, original contents retained."
+  },
+  {
+    "file": "courage-seated.jpg",
+    "source": "work/case-study-evidence/courage/03-experience/seated-crt.png",
+    "treatment": "Resized maximum 1600px JPEG, original contents retained."
+  },
+  {
+    "file": "courage-lamp.jpg",
+    "source": "work/case-study-evidence/courage/03-experience/lamp-light.png",
+    "treatment": "Resized maximum 1600px JPEG, original contents retained."
+  },
+  {
+    "file": "courage-off.jpg",
+    "source": "work/case-study-evidence/courage/03-experience/powered-off.png",
+    "treatment": "Resized maximum 1600px JPEG, original contents retained."
+  },
+  {
+    "file": "courage-mobile.jpg",
+    "source": "work/case-study-evidence/courage/03-experience/mobile.png",
+    "treatment": "Resized maximum 1600px JPEG, original contents retained."
+  },
+  {
+    "file": "chair-0.jpg",
+    "source": "work/case-study-evidence/courage/02-chair-iteration/01-floating-hint.png",
+    "treatment": "Resized maximum 1600px JPEG, original contents retained."
+  },
+  {
+    "file": "chair-1.jpg",
+    "source": "work/case-study-evidence/courage/02-chair-iteration/02-wood-engraving.png",
+    "treatment": "Resized maximum 1600px JPEG, original contents retained."
+  },
+  {
+    "file": "chair-2.jpg",
+    "source": "work/case-study-evidence/courage/02-chair-iteration/03-leather-label.png",
+    "treatment": "Resized maximum 1600px JPEG, original contents retained."
+  },
+  {
+    "file": "chair-3.jpg",
+    "source": "work/case-study-evidence/courage/02-chair-iteration/04-yellow-leather.png",
+    "treatment": "Resized maximum 1600px JPEG, original contents retained."
+  },
+  {
+    "file": "tesseract-early.jpg",
+    "source": "work/case-study-evidence/tesseract/Tesseract-visual-evidence/02-recreated-screens/01-earliest-prototype-controls.png",
+    "treatment": "Resized maximum 1600px JPEG, original contents retained."
+  },
+  {
+    "file": "tesseract-controls.jpg",
+    "source": "work/case-study-evidence/tesseract/Tesseract-visual-evidence/02-recreated-screens/03-current-scene-controls.png",
+    "treatment": "Resized maximum 1600px JPEG, original contents retained."
+  },
+  {
+    "file": "axis-rejected.jpg",
+    "source": "work/case-study-evidence/tesseract/Tesseract-visual-evidence/02-recreated-screens/07-rejected-axis-lab-layout.png",
+    "treatment": "Resized maximum 1600px JPEG, original contents retained."
+  },
+  {
+    "file": "axis-shared.jpg",
+    "source": "work/case-study-evidence/tesseract/Tesseract-visual-evidence/02-recreated-screens/09-shared-workspace-explore.png",
+    "treatment": "Resized maximum 1600px JPEG, original contents retained."
+  },
+  {
+    "file": "diary.mp4",
+    "source": "/Users/thoufikabdullah/Downloads/Projects/Tom Riddles Diary/Tom Riddle's Diary.mp4",
+    "treatment": "1440px H.264 recording; original audio restored as AAC 128 kbps."
+  },
+  {
+    "file": "diary-poster.jpg",
+    "source": "/Users/thoufikabdullah/Downloads/Projects/Tom Riddles Diary/Tom Riddle's Diary.mp4",
+    "time": 2
+  },
+  {
+    "file": "courage.mp4",
+    "source": "/Users/thoufikabdullah/Downloads/Projects/The Courage Computer/The Courage Computer.mp4",
+    "treatment": "1440px H.264 recording; original audio restored as AAC 128 kbps."
+  },
+  {
+    "file": "courage-poster.jpg",
+    "source": "/Users/thoufikabdullah/Downloads/Projects/The Courage Computer/The Courage Computer.mp4",
+    "time": 1
+  },
+  {
+    "file": "tesseract.mp4",
+    "source": "/Users/thoufikabdullah/Documents/My Movie.mp4",
+    "treatment": "1440px H.264 recording; original source has no audio track."
+  },
+  {
+    "file": "tesseract-poster.jpg",
+    "source": "/Users/thoufikabdullah/Documents/My Movie.mp4",
+    "time": 12.5
+  },
+  {
+    "file": "volume-0.jpg",
+    "source": "work/case-study-evidence/tesseract/Tesseract-visual-evidence/sources/browser-demo.mp4",
+    "time": 0.3,
+    "treatment": "Frame for retrospective interactive explanation."
+  },
+  {
+    "file": "volume-1.jpg",
+    "source": "work/case-study-evidence/tesseract/Tesseract-visual-evidence/sources/browser-demo.mp4",
+    "time": 1.15,
+    "treatment": "Frame for retrospective interactive explanation."
+  },
+  {
+    "file": "volume-2.jpg",
+    "source": "work/case-study-evidence/tesseract/Tesseract-visual-evidence/sources/browser-demo.mp4",
+    "time": 2.0,
+    "treatment": "Frame for retrospective interactive explanation."
+  },
+  {
+    "file": "volume-3.jpg",
+    "source": "work/case-study-evidence/tesseract/Tesseract-visual-evidence/sources/browser-demo.mp4",
+    "time": 2.8499999999999996,
+    "treatment": "Frame for retrospective interactive explanation."
+  },
+  {
+    "file": "volume-4.jpg",
+    "source": "work/case-study-evidence/tesseract/Tesseract-visual-evidence/sources/browser-demo.mp4",
+    "time": 3.6999999999999997,
+    "treatment": "Frame for retrospective interactive explanation."
+  },
+  {
+    "file": "volume-5.jpg",
+    "source": "work/case-study-evidence/tesseract/Tesseract-visual-evidence/sources/browser-demo.mp4",
+    "time": 4.55,
+    "treatment": "Frame for retrospective interactive explanation."
+  },
+  {
+    "file": "volume-6.jpg",
+    "source": "work/case-study-evidence/tesseract/Tesseract-visual-evidence/sources/browser-demo.mp4",
+    "time": 5.3999999999999995,
+    "treatment": "Frame for retrospective interactive explanation."
+  },
+  {
+    "file": "volume-7.jpg",
+    "source": "work/case-study-evidence/tesseract/Tesseract-visual-evidence/sources/browser-demo.mp4",
+    "time": 6.25,
+    "treatment": "Frame for retrospective interactive explanation."
+  },
+  {
+    "file": "volume-8.jpg",
+    "source": "work/case-study-evidence/tesseract/Tesseract-visual-evidence/sources/browser-demo.mp4",
+    "time": 7.1,
+    "treatment": "Frame for retrospective interactive explanation."
+  }
+]

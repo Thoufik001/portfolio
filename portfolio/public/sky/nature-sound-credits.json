@@ -1,0 +1,26 @@
+[
+  {
+    "file": "birds-ambience.mp3",
+    "source": "https://raw.githubusercontent.com/mateusfg7/Noisekun/d32024c67aba7c0577e1609944af00b9df1b7775/.github/assets/sounds/birds-tree.ogg",
+    "author": "SFX Producer",
+    "license": "CC0",
+    "credits": "https://github.com/mateusfg7/Noisekun#\ufe0f-credits",
+    "treatment": "30-second mono excerpt at 32 kHz, MP3 64 kbps; loop seam blended at playback."
+  },
+  {
+    "file": "breeze-ambience.mp3",
+    "source": "https://raw.githubusercontent.com/mateusfg7/Noisekun/d32024c67aba7c0577e1609944af00b9df1b7775/.github/assets/sounds/wind.ogg",
+    "author": "Felix Blume",
+    "license": "CC0",
+    "credits": "https://github.com/mateusfg7/Noisekun#\ufe0f-credits",
+    "treatment": "30-second mono excerpt at 32 kHz, MP3 64 kbps; loop seam blended at playback."
+  },
+  {
+    "file": "night-ambience.mp3",
+    "source": "https://raw.githubusercontent.com/mateusfg7/Noisekun/d32024c67aba7c0577e1609944af00b9df1b7775/.github/assets/sounds/night.ogg",
+    "author": "SFX Producer",
+    "license": "CC0",
+    "credits": "https://github.com/mateusfg7/Noisekun#\ufe0f-credits",
+    "treatment": "30-second mono excerpt at 32 kHz, MP3 64 kbps; loop seam blended at playback."
+  }
+]

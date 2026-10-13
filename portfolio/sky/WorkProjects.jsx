@@ -1,13 +1,12 @@
 import React from "react";
 import { withSkyInk } from "./sky-ink";
-import { ArrowUpRight } from "./SkyIcons";
 import { ProjectMark } from "./WorkInteractions";
 import "./work-projects.css";
 
 export default function WorkProjects({ projects, Preview }) {
   return withSkyInk(
     <div className="sky-work-projects">
-      {projects.map((project, index) => (
+      {projects.map((project) => (
         <article className="sky-work-project" key={project.id}>
           <a
             className="sky-project-link"
@@ -18,15 +17,13 @@ export default function WorkProjects({ projects, Preview }) {
               <Preview project={project} />
             </div>
             <div className="sky-project-caption">
-              <span className="sky-project-number">0{index + 1}</span>
               <span>
                 <h3>{project.caseTitle || project.title || project.name}</h3>
                 <small>
-                  <ProjectMark name={project.name} /> {project.name}
-                  {project.year ? ` · ${project.year}` : ""}
+                  <ProjectMark name={project.name} />
+                  <span>{project.name}{project.domain || project.category ? ` · ${project.domain || project.category}` : ""}{project.year ? ` · ${project.year}` : ""}</span>
                 </small>
               </span>
-              <ArrowUpRight size={20} />
             </div>
           </a>
         </article>

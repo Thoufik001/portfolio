@@ -1,4 +1,4 @@
-node_modules/
+node_modules
 dist/
 test-results/
 playwright-report/
@@ -12,3 +12,4 @@ outputs/
 work/
 .vercel
 .env*
+.neon

@@ -5,9 +5,35 @@
   overflow-anchor: none;
   color: var(--sky-ink);
   background: transparent;
-  padding-top: var(--sky-section-gap);
+  padding-top: calc(var(--sky-section-gap) + var(--space-8));
 }
-.meadow-contact-layout { position: relative; z-index: 2; display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 380px); gap: 64px; align-items: start; min-height: 540px; overflow-anchor: none; max-width: 1000px; padding: 0 32px; margin: 0 auto; }
+.meadow-contact-layout {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  min-height: 432px;
+  overflow-anchor: none;
+  max-width: 740px;
+  padding: 0 24px;
+  margin: 0 auto;
+  transition: max-width 350ms cubic-bezier(0.2, 0, 0, 1);
+}
+.meadow-contact-layout[data-contact-open="true"] {
+  max-width: 932px;
+}
+.meadow-paper-reveal {
+  position: absolute;
+  right: 24px;
+  top: 0;
+  height: 100%;
+  display: grid;
+  align-items: center;
+  width: 304px;
+  transform-origin: 50% 30%;
+}
+
 .meadow-closing {
   position: relative;
   z-index: 2;
@@ -16,7 +42,9 @@
   padding: 0;
   text-align: left;
 }
+
 .meadow-closing h2 {
+  display: grid;
   margin: 0;
   font-size: clamp(28px, 4vw, 40px);
   font-weight: 500;
@@ -24,33 +52,199 @@
   line-height: 1.2;
 }
 .meadow-footer .meadow-closing > p {
+  display: grid;
   max-width: 470px;
   margin: 24px 0 0;
+  position: relative;
+  left: 4px;
   font-size: 16px;
   line-height: 1.7;
   color: var(--sky-secondary);
 }
-.meadow-connect { position: relative; margin: 32px 0 0; width: 198px; height: 48px; max-width: 100%; transition: width 420ms cubic-bezier(.2,.8,.2,1); }
-.meadow-connect[data-open="true"] { width: 372px; }
-.meadow-liquid { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
-.sky-app .meadow-connect .meadow-contact { position: relative; z-index: 2; display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 198px; height: 48px; padding: 0; white-space: nowrap; font-size: 16px; border-radius: 999px; background: transparent; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; color: var(--sky-ink); }
-.meadow-socials { position: absolute; left: 208px; top: 0; display: flex; gap: 10px; align-items: center; }
-.meadow-socials a { position: relative; z-index: 2; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: transparent; color: var(--sky-ink); pointer-events: none; transform: translateX(calc(-78px - var(--social-index) * 58px)); transition: transform 420ms cubic-bezier(.2,.8,.2,1), scale 150ms ease-out, color 150ms ease-out; transition-delay: calc(var(--social-index) * 40ms); }
-.meadow-connect[data-open="true"] .meadow-socials a { transform: translateX(0); }
-.meadow-connect[data-ready="true"] .meadow-socials a { pointer-events: auto; }
-.meadow-socials a svg { opacity: 0; filter: blur(4px); scale: .25; transition: opacity 150ms ease, filter 180ms ease, scale 180ms ease; }
-.meadow-connect[data-open="true"] .meadow-socials a svg { opacity: 1; filter: blur(0); scale: 1; transition-delay: calc(320ms + var(--social-index) * 40ms); }
-.meadow-socials a:active { scale: .96; }
-.meadow-paper-reveal { position: relative; justify-self: end; width: 100%; max-width: 380px; transform-origin: 50% 30%; }
-.meadow-spawn-stars { position: absolute; inset: -24px; pointer-events: none; }
-.meadow-spawn-stars i { position: absolute; width: 7px; height: 7px; left: calc(8% + var(--star) * 16%); top: calc(5% + var(--star) * 15%); background: #ead8ff; clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%); animation: meadow-paper-spark 900ms ease-out both; animation-delay: calc(var(--star) * 40ms); }
-@keyframes meadow-paper-spark { 0% { opacity: 0; scale: .2; } 35% { opacity: 1; scale: 1.4; } 100% { opacity: 0; scale: .4; translate: 0 -28px; } }
+.meadow-closing :is(h2, p) > span {
+  grid-area: 1 / 1;
+  transition:
+    opacity 280ms cubic-bezier(0.2, 0, 0, 1),
+    translate 280ms cubic-bezier(0.2, 0, 0, 1);
+}
+.meadow-closing .meadow-copy-after,
+.meadow-closing[data-message-sent="true"] .meadow-copy-before {
+  opacity: 0;
+  translate: 0 6px;
+  pointer-events: none;
+}
+.meadow-closing[data-message-sent="true"] .meadow-copy-after {
+  opacity: 1;
+  translate: 0 0;
+  pointer-events: auto;
+}
+@media (prefers-reduced-motion: reduce) {
+  .meadow-closing :is(h2, p) > span {
+    transition: none;
+  }
+}
+.meadow-connect {
+  position: relative;
+  margin: 32px 0 0;
+  width: var(--contact-width, 160px);
+  height: 48px;
+  max-width: 100%;
+  transition: width 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.meadow-connect[data-open="true"] {
+  width: calc(var(--contact-width, 160px) + 178px);
+}
+.meadow-liquid-group {
+  width: calc(var(--contact-width, 160px) + 178px);
+  height: 48px;
+  overflow: visible;
+}
+.sky-app .meadow-connect .meadow-contact {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: var(--contact-width, 160px);
+  height: 48px;
+  padding: 0;
+  white-space: nowrap;
+  font-size: 16px;
+  border-radius: 999px;
+  color: var(--sky-ink);
+  background: transparent;
+  background-image: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.meadow-contact-label, .meadow-contact-icons { display: inline-grid; align-items: center; }
+.meadow-contact-label { position: relative; }
+.meadow-contact-label > span, .meadow-contact-icons > span { grid-area: 1 / 1; }
+.meadow-contact-icons { width: 18px; height: 18px; }
+.meadow-contact-icons > span { display: flex; }
+.meadow-contact-label > span {
+  transition: opacity 150ms cubic-bezier(.2, 0, 0, 1), translate 150ms cubic-bezier(.2, 0, 0, 1), filter 150ms cubic-bezier(.2, 0, 0, 1);
+}
+.meadow-label-note { position: absolute; opacity: 0; translate: 4px 0; filter: blur(3px); }
+.meadow-contact[data-label-expanded="true"] .meadow-label-connect { position: absolute; opacity: 0; translate: -4px 0; filter: blur(3px); }
+.meadow-contact[data-label-expanded="true"] .meadow-label-note { position: static; opacity: 1; translate: 0 0; filter: blur(0); }
+@media (prefers-reduced-motion: reduce) { .meadow-contact-label > span { transition: none; } }
+.meadow-socials {
+  position: absolute;
+  z-index: 1;
+  left: calc(var(--contact-width, 160px) + 14px);
+  top: 0;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  overflow: visible;
+}
+.meadow-socials a {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  color: var(--sky-ink);
+  background: transparent;
+  background-image: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  pointer-events: none;
+  transition:
+    scale 150ms ease-out,
+    color 150ms ease-out,
+    background-color 150ms ease-out;
+}
+.meadow-connect[data-open="true"] .meadow-socials a {
+  pointer-events: auto;
+}
+.meadow-socials a > svg {
+  opacity: 0;
+  transition: opacity 70ms ease-out;
+}
+.meadow-connect[data-open="true"] .meadow-socials a > svg {
+  opacity: 1;
+  transition: opacity 150ms ease-out 100ms;
+}
+.sky-app .meadow-connect .meadow-socials a {
+  background: transparent;
+  background-image: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.meadow-connect[data-ready="true"] .meadow-socials a {
+  pointer-events: auto;
+}
+@media (prefers-reduced-motion: reduce) {
+  .meadow-connect,
+  .meadow-socials a {
+    transition: none;
+  }
+}
+.meadow-spawn-stars {
+  position: absolute;
+  inset: -24px;
+  pointer-events: none;
+}
+.meadow-spawn-stars i {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  left: calc(8% + var(--star) * 16%);
+  top: calc(5% + var(--star) * 15%);
+  background: #ead8ff;
+  clip-path: polygon(
+    50% 0,
+    61% 39%,
+    100% 50%,
+    61% 61%,
+    50% 100%,
+    39% 61%,
+    0 50%,
+    39% 39%
+  );
+  animation: meadow-paper-spark 900ms ease-out both;
+  animation-delay: calc(var(--star) * 40ms);
+}
+@keyframes meadow-paper-spark {
+  0% {
+    opacity: 0;
+    scale: 0.2;
+  }
+  35% {
+    opacity: 1;
+    scale: 1.4;
+  }
+  100% {
+    opacity: 0;
+    scale: 0.4;
+    translate: 0 -28px;
+  }
+}
 @media (max-width: 560px) {
-  .meadow-connect { height: 106px; }
-  .meadow-connect[data-open="true"] { width: 198px; }
-  .meadow-socials { top: 58px; left: 0; }
-  .meadow-socials a { transform: translate(calc(130px - var(--social-index) * 58px), -58px); }
-  .meadow-connect[data-open="true"] .meadow-socials a { transform: translate(0,0); }
+  .meadow-connect,
+  .meadow-connect[data-open="true"] {
+    height: 48px;
+    width: calc(var(--contact-width, 160px) + 178px);
+    max-width: 100%;
+    transition: none;
+  }
+  .meadow-socials {
+    top: 0;
+    left: calc(var(--contact-width, 160px) + 14px);
+  }
+  .meadow-socials a,
+  .meadow-connect[data-open="true"] .meadow-socials a {
+    transform: none;
+    transition: none;
+    pointer-events: auto;
+  }
 }
 .meadow-garden {
   position: relative;
@@ -66,7 +260,8 @@
   height: 100%;
   object-fit: cover;
   object-position: center bottom;
-  filter: brightness(var(--meadow-brightness)) saturate(var(--meadow-saturation));
+  filter: brightness(var(--meadow-brightness))
+    saturate(var(--meadow-saturation));
   transition: filter 700ms ease;
 }
 .meadow-garden::after {
@@ -75,7 +270,7 @@
   inset: 0;
   background: var(--meadow-tint);
   mix-blend-mode: color;
-  mask-image: url("/sky/meadow-photographic-v2.webp");
+  mask-image: url("/sky/meadow-photographic-v2-optimized.webp");
   mask-size: cover;
   mask-position: center bottom;
   mask-repeat: no-repeat;
@@ -90,6 +285,12 @@
   z-index: 2;
   bottom: 30px;
   left: 28px;
+  right: 28px;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
   color: white;
   font-size: 11px;
   text-shadow: 0 1px 5px #143b25;
@@ -109,18 +310,24 @@
   }
   .meadow-garden {
     height: 300px;
-    margin-top: -64px;
+    margin-top: -24px;
   }
   .meadow-credit {
     bottom: 34px;
     left: 24px;
+    right: 24px;
+    gap: 12px;
+    font-size: 10px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .meadow-connect { transition: none; }
-  .meadow-spawn-stars { display: none; }
-  .meadow-socials a svg { transition: none; }
-  .meadow-connect[data-open="true"] .meadow-socials a svg { transition-delay: 0ms; }
+  .meadow-connect,
+  .meadow-contact-layout {
+    transition: none;
+  }
+  .meadow-spawn-stars {
+    display: none;
+  }
   .meadow-socials a,
   .meadow-contact,
   .meadow-garden img,
@@ -129,31 +336,116 @@
   }
 }
 
-.meadow-weather-credit { display: block; margin-top: 8px; font-size: 12px; }
-.meadow-weather-credit a { text-decoration: underline; text-underline-offset: 3px; }
-
-@media (max-width: 900px) { .meadow-contact-layout { grid-template-columns: minmax(0, 1fr); min-height: 0; align-items: start; gap: 48px; padding: 0 24px; } .meadow-closing { max-width: 520px; } .meadow-paper-reveal { justify-self: center; } }
-
-/* A single light sweep and gentle scale replace dark hover fills. */
-.sky-app .meadow-connect .meadow-contact, .meadow-socials a { overflow: hidden; }
-.sky-app .meadow-connect .meadow-contact { transition: scale 150ms ease-out; }
-.meadow-contact::after, .meadow-socials a::after { content: ""; position: absolute; inset: -30% -60%; pointer-events: none; background: linear-gradient(110deg, transparent 40%, rgb(255 255 255 / .35) 50%, transparent 60%); transform: translateX(-65%); opacity: 0; }
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .sky-app .meadow-connect .meadow-contact:hover, .meadow-socials a:hover { scale: 1.025; background: transparent; }
-  .meadow-contact:hover::after, .meadow-socials a:hover::after { animation: meadow-contact-shine 550ms ease-out; }
+.meadow-weather-credit {
+  margin-left: auto;
+  text-align: right;
+  font-size: inherit;
 }
-@keyframes meadow-contact-shine { 0% { opacity: 0; transform: translateX(-65%); } 15% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; transform: translateX(65%); } }
-
-.meadow-liquid-anchor, .meadow-liquid-drop { transform-box: fill-box; transform-origin: center; transition: scale 150ms ease-out; }
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .meadow-connect:has(.meadow-contact:hover) .meadow-liquid-anchor,
-  .meadow-connect:has([data-brand="linkedin"]:hover) .meadow-liquid-drop[data-index="0"],
-  .meadow-connect:has([data-brand="x"]:hover) .meadow-liquid-drop[data-index="1"],
-  .meadow-connect:has([data-brand="instagram"]:hover) .meadow-liquid-drop[data-index="2"] { scale: 1.025; }
+.meadow-weather-credit a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
-@media (prefers-reduced-motion: no-preference) {
-  .meadow-connect:has(.meadow-contact:active) .meadow-liquid-anchor,
-  .meadow-connect:has([data-brand="linkedin"]:active) .meadow-liquid-drop[data-index="0"],
-  .meadow-connect:has([data-brand="x"]:active) .meadow-liquid-drop[data-index="1"],
-  .meadow-connect:has([data-brand="instagram"]:active) .meadow-liquid-drop[data-index="2"] { scale: .96; }
+
+@media (max-width: 900px) {
+  .meadow-contact-layout {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 740px;
+    min-height: 0;
+    align-items: start;
+    gap: 0;
+    padding: 0 24px;
+  }
+  .meadow-closing {
+    max-width: 520px;
+    transform: none;
+  }
+  .meadow-paper-reveal {
+    position: relative;
+    top: auto;
+    right: auto;
+    height: auto;
+    width: 100%;
+    max-width: 304px;
+    justify-self: center;
+    margin-top: 48px;
+  }
+  .meadow-contact-layout[data-contact-open="true"] {
+    max-width: 740px;
+  }
+}
+
+/* The liquid item owns scale, keeping its silhouette and label together. */
+.sky-app .meadow-connect .meadow-contact,
+.meadow-socials a {
+  overflow: hidden;
+}
+.meadow-contact::after,
+.meadow-socials a::after {
+  content: "";
+  position: absolute;
+  inset: -30% -60%;
+  pointer-events: none;
+  background: linear-gradient(
+    110deg,
+    transparent 40%,
+    rgb(255 255 255 / 0.35) 50%,
+    transparent 60%
+  );
+  transform: translateX(-65%);
+  opacity: 0;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .meadow-contact:hover::after,
+  .meadow-socials a:hover::after {
+    animation: meadow-contact-shine 550ms ease-out;
+  }
+}
+@keyframes meadow-contact-shine {
+  0% {
+    opacity: 0;
+    transform: translateX(-65%);
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(65%);
+  }
+}
+
+.meadow-credit-left {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+}
+.meadow-analytics {
+  position: relative;
+}
+.meadow-analytics summary {
+  cursor: pointer;
+  text-decoration: none;
+  list-style: none;
+}
+.meadow-analytics summary::-webkit-details-marker { display: none; }
+.meadow-analytics summary::marker { content: ""; }
+.meadow-analytics p {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 0;
+  width: min(280px, calc(100vw - 48px));
+  padding: 16px;
+  border-radius: 24px;
+  background: var(--sky-panel-glass);
+  color: var(--sky-ink);
+  backdrop-filter: var(--sky-glass-filter);
+  -webkit-backdrop-filter: var(--sky-glass-filter);
+  box-shadow: 0 8px 24px rgb(22 35 50 / .08);
+  font-size: 13px;
+  line-height: 1.5;
+  text-shadow: none;
 }

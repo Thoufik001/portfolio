@@ -16,7 +16,14 @@ import {
   CodeXml as CodeIcon,
   Layers as LayersIcon,
   WandSparkles as WandIcon,
+  PenLine as PenIcon,
+  MousePointer2 as PointerIcon,
+  Pointer as HandIcon,
+  Plus as PlusIcon,
+  Volume2 as VolumeIcon,
 } from "lucide-react";
+
+export const Volume2 = skyIcon(VolumeIcon);
 
 // Sky controls share a single optical stroke weight at every rendered size.
 function skyIcon(Component) {
@@ -25,7 +32,7 @@ function skyIcon(Component) {
       <Component
         {...props}
         size={size}
-        strokeWidth={1.75}
+        strokeWidth={1.5}
         absoluteStrokeWidth
         aria-hidden="true"
         focusable="false"
@@ -33,6 +40,10 @@ function skyIcon(Component) {
     );
   };
 }
+export const PenLine = skyIcon(PenIcon);
+export const MousePointer2 = skyIcon(PointerIcon);
+export const Hand = skyIcon(HandIcon);
+export const Plus = skyIcon(PlusIcon);
 export const ArrowLeft = skyIcon(Left);
 export const ArrowRight = skyIcon(Right);
 export const ArrowUpRight = skyIcon(UpRight);

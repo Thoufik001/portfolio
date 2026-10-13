@@ -186,7 +186,7 @@ export const studies = {
       "Program pages contain curriculum, mentor details, pricing, FAQs and cohort information. These are recurring content changes. The documented brief asks how non-designers can make those changes while preserving a consistent page structure.",
     constraint:
       "The earlier case describes internal editors and a separate reviewer. Authentication is outside the designed scope. Its turnaround figures are expected outcomes, not verified measurements in this version.",
-    image: "/work/airtribe.png",
+    image: "/work/airtribe-optimized.webp",
     alt: "Archived Airtribe Program Page Studio interface with content sections alongside a program-page preview.",
     chapters: [
       {

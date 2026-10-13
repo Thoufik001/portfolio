@@ -7,3 +7,6 @@ Use installed project skills in `.agents/skills` when applicable: typography, la
 Keep existing rules coherent; do not append fixes on top of conflicting rules. Use normal document scrolling, no chapter separators, and 14px index navigation. Preserve confidentiality and label reconstructed visuals. Do not fabricate shipped status, research or outcomes.
 
 Run `npm run build` and visually verify desktop and mobile for the affected routes. Preserve earlier portfolio experiments. Do not publish to GitHub or a host unless requested.
+
+## Current repository scope
+This handoff contains one active portfolio: `portfolio/sky/main.jsx`, loaded at `/` and `/sky/`. Earlier portfolio routes are excluded. Consult `CLAUDE.md` for the case-study handoff; preserve the approved homepage.

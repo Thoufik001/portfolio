@@ -1,5 +1,5 @@
 import { withSkyInk } from "./sky-ink";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   Sun,
@@ -12,12 +12,14 @@ import {
   MapPinOff,
   RotateCcw,
   ChevronDown,
+  Volume2,
 } from "./SkyIcons";
 import { localHour, regions } from "./weather";
 
-function WeatherIcon({ cloudy, rain, night, size = 20 }) {
-  const Component = rain ? CloudRain : cloudy ? Cloud : night ? Moon : Sun;
-  return <Component size={size} />;
+function WeatherIcon({ cloudy, rain, size = 20 }) {
+  if (rain) return <CloudRain size={size} />;
+  if (cloudy) return <Cloud size={size} />;
+  return <span className="sky-phase-icons"><span className="sky-phase-moon"><Moon size={size} /></span><span className="sky-phase-sun"><Sun size={size} /></span></span>;
 }
 function LocationIcon({ blocked }) {
   const Component = blocked ? MapPinOff : MapPin;
@@ -30,25 +32,21 @@ function phaseColor(time, sunrise, sunset) {
   };
   const mix = (from, to, amount) =>
     from.map((channel, i) => channel + (to[i] - channel) * amount);
-  const circularDistance = (target) =>
-    Math.abs(((time - target + 36) % 24) - 12);
-  // Four-hour twilight bands, with a soft warm peak at each horizon crossing.
-  const daylight =
-    smooth((time - sunrise + 2) / 4) * (1 - smooth((time - sunset + 2) / 4));
-  const warmth = Math.exp(
-    -Math.pow(
-      Math.min(circularDistance(sunrise), circularDistance(sunset)) / 1.75,
-      2,
-    ),
-  );
-  const base = mix([110, 133, 166], [189, 153, 94], daylight);
-  const color = mix(base, [197, 142, 120], warmth);
+  const circularDistance = (target) => Math.abs(((time - target + 36) % 24) - 12);
+  const night = [101, 119, 168];
+  const day = [100, 160, 207];
+  const daylight = smooth((time - sunrise + 1) / 2) * (1 - smooth((time - sunset + 1) / 2));
+  const sunriseGlow = Math.exp(-Math.pow(circularDistance(sunrise) / 1.35, 2));
+  const sunsetGlow = Math.exp(-Math.pow(circularDistance(sunset) / 1.35, 2));
+  const base = mix(night, day, daylight);
+  const color = mix(mix(base, [228, 177, 94], sunriseGlow), [194, 132, 137], sunsetGlow);
   return `rgb(${color.map(Math.round).join(" ")})`;
 }
 
 function TimeWheel({
   hour,
   onChange,
+  onCommit,
   displayTime,
   sunrise = 6,
   sunset = 18,
@@ -110,6 +108,7 @@ function TimeWheel({
         onChange((Math.round(drag.current.hour * 4) / 4) % 24);
       }}
       onPointerUp={(event) => {
+        if (drag.current) onCommit?.();
         drag.current = null;
         if (event.currentTarget.hasPointerCapture(event.pointerId))
           event.currentTarget.releasePointerCapture(event.pointerId);
@@ -139,6 +138,7 @@ function TimeWheel({
                 ? 23.75
                 : (hour + offsets[event.key] + 24) % 24,
           );
+          onCommit?.();
         }
       }}
     >
@@ -182,29 +182,10 @@ function TimeWheel({
                 }
               />
             ))}
-            {[0, 3, 6, 9, 12, 15, 18, 21].map((value) => {
-              const x = 100 + Math.sin((value / 12) * Math.PI) * 65,
-                y = 104 - Math.cos((value / 12) * Math.PI) * 65;
-              return (
-                <text
-                  key={value}
-                  x={x}
-                  y={y}
-                  textAnchor="middle"
-                  className="sky-wheel-number"
-                  transform={`rotate(${hour * 15} ${x} ${y})`}
-                >
-                  {String(value).padStart(2, "0")}
-                </text>
-              );
-            })}
           </g>
-          <g className="sky-wheel-index">
-            <path
-              className="sky-wheel-pointer"
-              d="M100 3 L97.5 11 L100 15.5 L102.5 11 Z"
-            />
-            <path className="sky-wheel-pointer-glint" d="M100 5.5 V12" />
+          <g className="sky-wheel-index" transform="translate(0 8)">
+            <path className="sky-wheel-pointer" d="M100 18 108 37 100 33 92 37Z" />
+            <path className="sky-wheel-pointer-facet" d="M100 18 100 33 92 37Z" />
           </g>
         </svg>
       </div>
@@ -268,32 +249,6 @@ function BlurCaptionSegment({ text, reduced }) {
   );
 }
 
-// The native control can reopen a denied permission in supporting browsers.
-// Legacy geolocation requires the user to change the browser's site settings.
-function LocationPermission({ locate }) {
-  const native = useRef(null);
-  const supported = typeof window.HTMLGeolocationElement === "function";
-  useEffect(() => {
-    const element = native.current;
-    if (!element) return;
-    const received = () => {
-      if (element.position) locate(element.position);
-    };
-    element.addEventListener("location", received);
-    return () => element.removeEventListener("location", received);
-  }, [locate]);
-  return withSkyInk(
-    <div className="sky-location-help" role="status">
-      {supported ? (
-        <geolocation ref={native} className="sky-native-location" />
-      ) : (
-        <>Allow location in your browser’s site settings, then retry.</>
-      )}
-      <p>You can also choose a city above.</p>
-    </div>
-  );
-}
-
 export default function SkyControls({
   region,
   setRegion,
@@ -305,15 +260,23 @@ export default function SkyControls({
   setPreviewHour,
   refresh,
   weather,
+  skyRain,
+  skyCloud,
+  skyAurora,
   status,
   now,
   paused,
   setPaused,
+  soundOn,
+  soundVolume,
+  setSoundVolume,
+  toggleRainSound,
   reduced,
+  onActivity,
 }) {
   const [open, setOpen] = useState(false),
     [editingCity, setEditingCity] = useState(false),
-    [permissionHint, setPermissionHint] = useState(false),
+    [pendingCity, setPendingCity] = useState(null),
     [optionsOpen, setOptionsOpen] = useState(false),
     [discovered, setDiscovered] = useState(() => {
       try {
@@ -325,9 +288,19 @@ export default function SkyControls({
   const root = useRef(null),
     trigger = useRef(null),
     cityTrigger = useRef(null),
-    optionsTrigger = useRef(null);
-  const hour = previewHour ?? localHour(now, region),
-    night = hour < 6 || hour > 19;
+    optionsTrigger = useRef(null),
+    selectionTimer = useRef(null);
+  useEffect(() => () => clearTimeout(selectionTimer.current), []);
+  const closeControls = useCallback((returnFocus = false) => {
+    window.dispatchEvent(new Event("portfolio-sky-close"));
+    clearTimeout(selectionTimer.current);
+    setPendingCity(null);
+    setEditingCity(false);
+    setOptionsOpen(false);
+    setOpen(false);
+    if (returnFocus) requestAnimationFrame(() => trigger.current?.focus());
+  }, []);
+  const hour = previewHour ?? localHour(now, region);
   const displayTime =
     previewHour === null
       ? new Intl.DateTimeFormat("en-US", {
@@ -336,16 +309,14 @@ export default function SkyControls({
           minute: "2-digit",
         }).format(now)
       : `${Math.floor(hour) % 12 || 12}:${String(Math.round((hour % 1) * 60)).padStart(2, "0")} ${hour >= 12 ? "PM" : "AM"}`;
-  const cloudy =
-      preview === "cloud" || (preview === "live" && weather?.cloud > 45),
-    rain = preview === "rain" || (preview === "live" && weather?.rain > 0);
-  const locationNeeded =
-    locationStatus === "denied" ||
-    locationStatus === "unavailable" ||
-    region.approximate;
+  const cloudy = preview === "cloud" || (preview === "live" && (skyCloud > 0.2 || /cloud|overcast/i.test(weather?.condition ?? weather?.description ?? ""))),
+    rain = preview === "rain" || (preview === "live" && skyRain > 0);
+  const locationUnavailable =
+    !Number.isFinite(region.lat) &&
+    (locationStatus === "denied" || locationStatus === "unavailable");
   const description =
-    permissionHint && locationStatus === "denied"
-      ? "Location blocked"
+    locationUnavailable
+      ? locationStatus === "denied" ? "Location blocked" : "Location unavailable"
       : !Number.isFinite(region.lat)
         ? locationStatus === "locating"
           ? "Finding your region…"
@@ -355,36 +326,29 @@ export default function SkyControls({
           : preview !== "live"
             ? { clear: "Clear", cloud: "Cloudy", rain: "Rain" }[preview]
             : weather
-              ? `${weather.description}${status === "stale" ? " · Last update" : ""}`
+              ? `${skyAurora ? "Aurora" : weather.description}${status === "stale" ? " · Last update" : ""}`
               : "Unavailable · Retry";
   function retryLocation() {
-    setPermissionHint(true);
     locate();
   }
-  useEffect(() => {
-    if (locationStatus === "located" || locationStatus === "manual")
-      setPermissionHint(false);
-  }, [locationStatus]);
   useEffect(() => {
     if (!open) return;
     function outside(event) {
       if (!root.current?.contains(event.target)) {
-        setOpen(false);
-        setEditingCity(false);
-        setOptionsOpen(false);
+        closeControls();
       }
     }
     function escape(event) {
       if (event.key === "Escape") {
+        clearTimeout(selectionTimer.current);
+        setPendingCity(null);
         if (editingCity || optionsOpen) {
           (editingCity ? cityTrigger : optionsTrigger).current?.focus();
           setEditingCity(false);
           setOptionsOpen(false);
           return;
         }
-        setOpen(false);
-        setEditingCity(false);
-        trigger.current?.focus();
+        closeControls(true);
       }
     }
     document.addEventListener("pointerdown", outside);
@@ -393,21 +357,49 @@ export default function SkyControls({
       document.removeEventListener("pointerdown", outside);
       document.removeEventListener("keydown", escape);
     };
-  }, [open, editingCity, optionsOpen]);
+  }, [open, editingCity, optionsOpen, closeControls]);
   function reset() {
     setPreviewHour(null);
     setPreview("live");
+    onActivity?.("sky_weather_change", "live");
     refresh();
   }
   return withSkyInk(
     <aside ref={root} className="sky-environment" aria-label="Sky settings">
+      <button
+        ref={trigger}
+        className="sky-weather-chip"
+        data-discovered={discovered}
+        aria-expanded={open}
+        aria-controls="sky-weather-panel"
+        aria-label="Open weather and time"
+        onClick={() => {
+          if (open) { closeControls(); return; }
+          onActivity?.("sky_open", "simulator");
+          window.dispatchEvent(new Event("portfolio-sky-open"));
+          setDiscovered(true);
+          try { sessionStorage.setItem("sky-controls-discovered", "yes"); } catch {}
+          setOpen(true);
+          setEditingCity(false);
+          setOptionsOpen(false);
+        }}
+      >
+        <span className="sky-phase-icons"><span className="sky-phase-moon"><Moon size={20} /></span><span className="sky-phase-sun"><Sun size={20} /></span></span>
+      </button>
+      <AnimatePresence initial={false}>
       {open && (
-        <section
+        <motion.section
+          key="weather-panel"
+          initial={reduced ? false : { opacity: 0, y: -8, scale: .98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -6, scale: .98 }}
+          transition={{ duration: reduced ? 0 : .22, ease: [.2, 0, 0, 1] }}
           id="sky-weather-panel"
           className="sky-settings-panel"
           data-region-open={editingCity}
           aria-label="Weather and time controls"
         >
+          <div className="sky-settings-content">
           <header className="sky-weather-heading">
             <button
               ref={cityTrigger}
@@ -415,12 +407,14 @@ export default function SkyControls({
               aria-label="Change region"
               title={
                 region.approximate
-                  ? "Approximate city from your network. Use device location or choose another city."
+                  ? "Approximate city from your network. Choose another city if needed."
                   : "Choose a city"
               }
               aria-expanded={editingCity}
               aria-controls="sky-region-picker"
               onClick={() => {
+                clearTimeout(selectionTimer.current);
+                setPendingCity(null);
                 setEditingCity(!editingCity);
                 setOptionsOpen(false);
               }}
@@ -440,87 +434,97 @@ export default function SkyControls({
               className="sky-close-button"
               aria-label="Close sky controls"
               onClick={() => {
-                setOpen(false);
-                trigger.current?.focus();
+                closeControls(true);
               }}
             >
               <X size={22} />
             </button>
           </header>
+          <AnimatePresence initial={false}>
           {editingCity && (
-            <div
+            <motion.div
               id="sky-region-picker"
               className="sky-region-picker"
               role="group"
               aria-label="Choose region"
+              initial={reduced ? false : { height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: reduced ? 0 : 0.28, ease: [0.2, 0, 0, 1] }}
             >
+              <div className="sky-region-list">
               <button
+                type="button"
+                className="sky-use-location"
                 onClick={() => {
-                  retryLocation();
+                  clearTimeout(selectionTimer.current);
+                  setPendingCity(null);
                   setEditingCity(false);
+                  setPreviewHour(null);
+                  locate();
                   cityTrigger.current?.focus();
                 }}
               >
-                <MapPin size={20} />
-                Use my location
+                <MapPin size={20} aria-hidden="true" />
+                <span>Use my location</span>
               </button>
               {regions.map((city) => (
                 <button
                   key={city.name}
-                  aria-pressed={region.name === city.name}
+                  aria-pressed={(pendingCity ?? region.name) === city.name}
                   onClick={() => {
-                    setRegion(city);
-                    setEditingCity(false);
-                    setPreviewHour(null);
-                    cityTrigger.current?.focus();
+                    clearTimeout(selectionTimer.current);
+                    setPendingCity(city.name);
+                    selectionTimer.current = setTimeout(() => {
+                      setRegion(city);
+                      onActivity?.("sky_region_change", city.name);
+                      setPendingCity(null);
+                      setPreview("live");
+                      setPreviewHour(null);
+                    }, reduced ? 0 : 260);
                   }}
                 >
+                  {(pendingCity ?? region.name) === city.name && (
+                    <motion.span className="sky-region-selection" layoutId="sky-region-selection" transition={{ duration: reduced ? 0 : 0.24, ease: [0.2, 0, 0, 1] }} />
+                  )}
                   <span className="sky-city-check" aria-hidden="true">
-                    {region.name === city.name && <Check size={20} />}
+                    {(pendingCity ?? region.name) === city.name && <Check size={20} />}
                   </span>
-                  {city.name}
+                  <span className="sky-region-name">{city.name}</span>
                 </button>
               ))}
-            </div>
+              </div>
+            </motion.div>
           )}
+          </AnimatePresence>
           <div className="sky-weather-meta">
-            <WeatherIcon cloudy={cloudy} rain={rain} night={night} />
-            <button
-              className="sky-weather-status"
-              onClick={locationNeeded ? retryLocation : refresh}
-              title={
-                region.approximate
-                  ? "Approximate region from your network. Enable device location for a more accurate city."
-                  : undefined
-              }
-            >
-              {description}
-              {weather && status !== "loading" && !permissionHint
-                ? ` · ${weather.temperature}°`
-                : ""}
-            </button>
-            {locationNeeded && (
-              <button
-                className="sky-location-action"
-                onClick={retryLocation}
-                aria-label={
-                  locationStatus === "denied"
-                    ? "Location blocked. Allow access in browser site settings"
-                    : "Enable device location"
-                }
-                title={
-                  locationStatus === "denied"
-                    ? "Allow location in browser site settings"
-                    : "Enable device location"
-                }
-              >
+            {locationUnavailable ? (
+              <span className="sky-location-icon" aria-hidden="true">
                 <LocationIcon blocked={locationStatus === "denied"} />
+              </span>
+            ) : (
+              <WeatherIcon cloudy={cloudy} rain={rain} />
+            )}
+            {locationUnavailable ? (
+              <>
+                <span className="sky-weather-status" role="status">{description}</span>
+                <button type="button" className="sky-location-grant" onClick={retryLocation}>
+                  {locationStatus === "denied" ? "Grant access" : "Try again"}
+                </button>
+              </>
+            ) : (
+              <button
+                className="sky-weather-status"
+                onClick={refresh}
+                title={weather?.cloudObservation
+                  ? `Cloud layers checked against ${weather.cloudObservation.station} · ${weather.cloudObservation.distanceKm} km away`
+                  : region.approximate ? "Approximate region from your network" : "Modelled weather · refresh"}
+              >
+                {description}
+                {weather && status !== "loading" ? ` · ${weather.temperature}°` : ""}
               </button>
             )}
           </div>
-          {permissionHint && locationStatus === "denied" && (
-            <LocationPermission locate={locate} />
-          )}
           <TimeWheel
             hour={hour}
             displayTime={displayTime}
@@ -528,14 +532,15 @@ export default function SkyControls({
             sunrise={
               Number.isFinite(weather?.rise)
                 ? localHour(new Date(weather.rise * 1000), region)
-                : 6
+                : undefined
             }
             sunset={
               Number.isFinite(weather?.set)
                 ? localHour(new Date(weather.set * 1000), region)
-                : 18
+                : undefined
             }
             onChange={setPreviewHour}
+            onCommit={() => onActivity?.("sky_time_change", "dial")}
           />
           <button
             ref={optionsTrigger}
@@ -577,7 +582,7 @@ export default function SkyControls({
                       }
                       aria-pressed={preview === value}
                       title={label}
-                      onClick={() => setPreview(value)}
+                      onClick={() => { setPreview(value); onActivity?.("sky_weather_change", value); }}
                     >
                       {value === "live" ? (
                         "Auto"
@@ -585,7 +590,6 @@ export default function SkyControls({
                         <WeatherIcon
                           cloudy={value === "cloud"}
                           rain={value === "rain"}
-                          night={false}
                         />
                       )}
                     </button>
@@ -605,29 +609,32 @@ export default function SkyControls({
                   <span />
                 </button>
               </div>
+              <div className="sky-motion-row">
+                <span>Nature sound</span>
+                <span className="sky-volume-control">
+                <Volume2 size={18} aria-hidden="true" />
+                <input className="sky-volume-slider" type="range" min="10" max="100" step="1"
+                  aria-label="Nature sound volume" aria-valuetext={`${Math.round(soundVolume * 100)} percent`}
+                  value={Math.round(soundVolume * 100)} disabled={!soundOn}
+                  style={{ "--volume-fill": `${(soundVolume - .1) / .9 * 100}%` }}
+                  onChange={event => setSoundVolume(Number(event.target.value) / 100)} />
+                </span>
+                <button
+                  className="sky-motion-switch"
+                  role="switch"
+                  aria-label="Weather and nature sound"
+                  aria-checked={soundOn}
+                  onClick={toggleRainSound}
+                >
+                  <span />
+                </button>
+              </div>
             </div>
           </div>
-        </section>
+          </div>
+        </motion.section>
       )}
-      <motion.button
-        ref={trigger}
-        className="sky-weather-chip"
-        data-discovered={discovered}
-        aria-expanded={open}
-        aria-controls="sky-weather-panel"
-        aria-label={open ? "Close weather and time" : "Open weather and time"}
-        onClick={() => {
-          setDiscovered(true);
-          try {
-            sessionStorage.setItem("sky-controls-discovered", "yes");
-          } catch {}
-          setOpen(!open);
-          setEditingCity(false);
-          setOptionsOpen(false);
-        }}
-      >
-        <WeatherIcon cloudy={cloudy} rain={rain} night={night} size={20} />
-      </motion.button>
+      </AnimatePresence>
     </aside>
   );
 }

@@ -1,0 +1,24 @@
+.sky-intro .liquid {
+  --liquid-tint: rgba(255, 255, 255, .045);
+  --liquid-rim: rgba(255, 255, 255, .75);
+  --liquid-shadow: rgba(18, 30, 46, .1);
+  background: var(--liquid-tint);
+  -webkit-backdrop-filter: blur(16px) saturate(1.6);
+  backdrop-filter: blur(16px) saturate(1.6);
+  box-shadow: inset 0 1px 0 var(--liquid-rim), inset 0 -1px 0 rgba(255, 255, 255, .18), 0 3px 10px var(--liquid-shadow);
+}
+.sky-intro .liquid[data-liquid-mode='webgl'] {
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: 0 3px 10px var(--liquid-shadow);
+}
+/* The existing rail's blur would blur the rendered glass rim a second time.
+   This opt-in-only rule restores itself when the liquid class is removed. */
+.sky-intro .sky-community-nav:has(.liquid[data-liquid-mode='webgl']) {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+@media (prefers-reduced-transparency: reduce) {
+  .sky-intro .liquid { background: var(--sky-glass-fallback); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
